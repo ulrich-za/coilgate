@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block title %}Add a rule{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="narrow">
+  <p class="back"><a href="{{ url_for('main.admin_rules') }}">Back to rules</a></p>
+  <div class="form-title-row">
+    <h2 class="form-title">Add a rule</h2>
+    {% set rule_id = none %}{% include "_builder_switch.html" %}
+  </div>
+  {% if not has_outputs %}
+    <p class="lede">Rules switch outputs, so {% if can("io") %}<a href="{{ url_for('main.admin_io_new', kind='output') }}">add an output</a>{% else %}an output needs adding{% endif %} first.</p>
+  {% else %}
+  <p class="lede">What should start it?</p>
+  <ul class="pick-list">
+    {% for key, (title, help) in triggers.items() %}
+    <li>
+      {% if available[key] %}
+        <a class="pick" href="{{ url_for('main.admin_rule_new', trigger_type=key) }}">
+          <strong>{{ title }}</strong><span>{{ help }}</span>
+        </a>
+      {% else %}
+        <div class="pick pick-disabled">
+          <strong>{{ title }}</strong>
+          <span>{{ help }}</span>
+          <span class="pick-need">
+            {% if key == "input" %}{% if can("io") %}<a href="{{ url_for('main.admin_io_new', kind='input') }}">Add an input</a>{% else %}Add an input{% endif %} first.
+            {% elif key == "sensor" %}{% if can("io") %}<a href="{{ url_for('main.admin_sensor_pick') }}">Add a sensor</a>{% else %}Add a sensor{% endif %} first.
+            {% elif key == "rule" %}Add another rule first.
+            {% else %}{% if can("schedules") %}<a href="{{ url_for('main.admin_schedule_new') }}">Add a schedule</a>{% else %}Add a schedule{% endif %} first.{% endif %}
+          </span>
+        </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endblock %}

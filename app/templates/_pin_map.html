@@ -1,0 +1,83 @@
+{#- The Raspberry Pi 5 header, drawn as on Pinout.xyz: odd pins on the left,
+    even on the right, pin 1 at the top. Pins with an output or input on them
+    carry data-pin-point, and live.js lights them up as they change. -#}
+
+{% macro live_attrs(pin, io) -%}
+  {%- if pin.live -%}
+    {%- set on = io.is_on(pin.live.id) -%}
+    {%- set high = (on and pin.live.level == "high") or (not on and pin.live.level == "low") -%}
+    data-pin-point="{{ pin.live.id }}" data-kind="{{ pin.live.kind }}" data-active-level="{{ pin.live.level }}"
+    data-on="{{ 'yes' if on else 'no' }}" data-level="{{ 'H' if high else 'L' }}"
+    {%- if io.errors.get(pin.live.id) %} data-error="yes"{% endif %}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro pin_title(pin) -%}
+  Pin {{ pin.physical }}: {{ pin.name }}{% if pin.label %} ({{ pin.label }}){% endif %}
+  {%- for u in pin.uses %}. {{ u.name }}{% endfor %}
+{%- endmacro %}
+
+{% macro pin_button(pin, side, io, compact) -%}
+<button type="button" class="hpin hpin-{{ side }}" data-physical="{{ pin.physical }}" data-type="{{ pin.type }}"
+        data-used="{{ 'yes' if pin.uses else 'no' }}" {{ live_attrs(pin, io) }}
+        aria-label="{{ pin_title(pin) }}" {% if compact %}tabindex="-1"{% endif %}>
+  <span class="hpin-dot" aria-hidden="true">{{ pin.physical }}</span>
+  <span class="hpin-text" aria-hidden="true">
+    {%- if not compact or not pin.uses %}<span class="hpin-name">{{ pin.name }}</span>{% endif %}
+    {%- if not compact %} <span class="hpin-label" data-default="{{ pin.label }}">{{ pin.label }}</span>{% endif %}
+    {%- if pin.uses %} <span class="hpin-use">{{ pin.uses | map(attribute="name") | unique | join(", ") }}</span>{% endif -%}
+  </span>
+  {%- if pin.live %}<span class="hpin-level" aria-hidden="true" data-level-text>{{ 'H' if ((io.is_on(pin.live.id) and pin.live.level == 'high') or (not io.is_on(pin.live.id) and pin.live.level == 'low')) else 'L' }}</span>{% endif %}
+</button>
+{%- endmacro %}
+
+{% macro header(rows, io, compact=false) %}
+{#- The compact map beside the controls repeats what each row already says
+    ("GPIO 17 · pin 11"), so screen readers skip it. -#}
+<div class="pi-header{% if compact %} compact{% endif %}" data-pi-header data-mode="coilgate"
+     {% if compact %}aria-hidden="true"{% else %}role="group" aria-label="Raspberry Pi 5 40-pin header"{% endif %}>
+  {% for left, right in rows %}
+  <div class="hrow">
+    {{ pin_button(left, "left", io, compact) }}
+    {{ pin_button(right, "right", io, compact) }}
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{#- The same header as it sits on the board, seen from above with the USB
+    ports to the right: even pins along the board's edge (top row), pin 1 at
+    the bottom left. Pins in use link to their row on the Controls page. -#}
+{% macro strip(rows, io) %}
+<div class="pin-strip" role="group" aria-label="Raspberry Pi 5 header, seen from above">
+  {% for row_index in (1, 0) %}
+    {% for pair in rows %}
+      {% set pin = pair[row_index] %}
+      {% if pin.live %}
+        <a class="spin" href="#io-{{ pin.live.id }}" data-type="{{ pin.type }}" data-used="yes" {{ live_attrs(pin, io) }}
+           title="{{ pin_title(pin) }}" aria-label="{{ pin_title(pin) }}"></a>
+      {% else %}
+        <span class="spin" data-type="{{ pin.type }}" data-used="{{ 'yes' if pin.uses else 'no' }}" title="{{ pin_title(pin) }}"></span>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro orientation() %}
+<svg class="pi-sketch" viewBox="0 0 64 92" role="img" aria-label="Raspberry Pi 5 seen from above, header on the right, USB and Ethernet at the bottom, pin 1 at the top left of the header">
+  <rect class="sk-board" x="1" y="1" width="62" height="90" rx="4"></rect>
+  <rect class="sk-header" x="52" y="5" width="9" height="54" rx="1"></rect>
+  {% for n in range(20) %}
+    <circle class="sk-pin" cx="54.5" cy="{{ 7.7 + n * 2.6 }}" r="0.9"></circle>
+    <circle class="sk-pin" cx="58.5" cy="{{ 7.7 + n * 2.6 }}" r="0.9"></circle>
+  {% endfor %}
+  <rect class="sk-pin1" x="53.4" y="6.6" width="2.2" height="2.2"></rect>
+  <rect class="sk-port" x="6" y="78" width="16" height="13"></rect>
+  <rect class="sk-port" x="26" y="78" width="14" height="13"></rect>
+  <rect class="sk-port" x="44" y="78" width="14" height="13"></rect>
+  <text class="sk-text" x="32" y="73" text-anchor="middle">USB · Ethernet</text>
+  <text class="sk-text" x="6" y="40" text-anchor="middle" transform="rotate(-90 6 40)">HDMI</text>
+  <text class="sk-text sk-strong" x="49" y="9.4" text-anchor="end">1</text>
+</svg>
+{% endmacro %}

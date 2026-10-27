@@ -1,0 +1,13 @@
+# Cloudflare Tunnel, set up from the command line instead of the dashboard.
+# See README, Part 3, option B. Replace the two IDs and the hostname.
+#
+# Install:  sudo cp deploy/cloudflared-config.yml /etc/cloudflared/config.yml
+#           sudo cloudflared service install
+
+tunnel: 00000000-0000-0000-0000-000000000000
+credentials-file: /etc/cloudflared/00000000-0000-0000-0000-000000000000.json
+
+ingress:
+  - hostname: home.coilgate.io
+    service: http://127.0.0.1:8000
+  - service: http_status:404

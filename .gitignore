@@ -1,0 +1,12 @@
+# Secrets and data: never commit these
+instance/
+config.toml
+*.db
+*.db-wal
+*.db-shm
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

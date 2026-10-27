@@ -1,0 +1,16 @@
+<!doctype html>
+{% set theme = g.user.theme if g.get("user") and g.user.theme in ("light", "dark") else none %}
+<html lang="en"{% if theme %} data-theme="{{ theme }}"{% endif %}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="{{ theme or 'light dark' }}">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}{% endblock %} | {{ app_name }}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% block body %}{% endblock %}
+</body>
+</html>

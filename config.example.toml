@@ -1,0 +1,41 @@
+# CoilGate deployment settings.
+#
+# Copy this file to config.toml and change what you need. Any setting can also
+# be set with an environment variable named COILGATE_<NAME>, for example
+# COILGATE_PORT=8080, which wins over this file. Restart CoilGate after changes.
+#
+# Only deployment settings live here. Inputs and outputs, accounts, and the
+# security and session settings are changed in the app, under Admin.
+
+# Where CoilGate listens. Leave on 127.0.0.1: Caddy or Cloudflare Tunnel faces
+# the network and forwards to this port.
+host = "127.0.0.1"
+port = 8000
+threads = 16      # each open Controls page uses one while it waits for changes
+
+# Set to true once CoilGate is reached over HTTPS (Caddy or Cloudflare Tunnel).
+secure_cookies = false
+
+# Number of reverse proxies in front: 0 when you open CoilGate directly,
+# 1 behind Caddy or Cloudflare Tunnel. Forwarded visitor addresses are only
+# believed when the connection comes from proxy_address.
+trust_proxy = 0
+proxy_address = "127.0.0.1"
+
+# Database file, relative to this folder or absolute.
+database = "instance/coilgate.db"
+
+# "auto" drives real GPIO pins on the Pi and simulates them anywhere else
+# (Windows). "hardware" or "simulate" force one or the other.
+gpio_mode = "auto"
+
+# Networks allowed to open the Admin area. Empty means from anywhere (still
+# admin accounts only). When CoilGate is on the internet, limiting this to your
+# home network and VPN means a stolen admin password can't reconfigure
+# anything from outside. Everyone else gets "page not found".
+# admin_networks = ["192.168.1.0/24", "10.8.0.0/24"]
+admin_networks = []
+
+# Rules (Admin > Rules) run in the background. Set to false to pause every rule
+# at once, for example while rewiring; the Controls page keeps working.
+rule_engine = true

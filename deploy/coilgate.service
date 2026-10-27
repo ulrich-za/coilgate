@@ -1,0 +1,59 @@
+# systemd unit for CoilGate on the Raspberry Pi.
+# Install:  sudo cp deploy/coilgate.service /etc/systemd/system/
+#           sudo systemctl daemon-reload && sudo systemctl enable --now coilgate
+
+[Unit]
+Description=CoilGate
+After=network.target
+
+[Service]
+Type=simple
+User=coilgate
+Group=coilgate
+WorkingDirectory=/opt/coilgate
+ExecStart=/opt/coilgate/.venv/bin/python /opt/coilgate/run.py
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=3
+UMask=0077
+
+# GPIO access for the inputs and outputs, and I2C for BME280 sensors.
+# 1-Wire (DS18B20) and DHT22 readings come from /sys and need no group.
+# lgpio keeps scratch files in LG_WD, because the code folder is read-only to
+# the service.
+SupplementaryGroups=gpio i2c
+RuntimeDirectory=coilgate
+RuntimeDirectoryMode=0700
+Environment=LG_WD=/run/coilgate
+
+# Sandboxing: the app can read its code and write only to instance/
+# (and its private runtime folder).
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/coilgate/instance
+ProtectHome=yes
+PrivateTmp=yes
+# Devices: only the GPIO chips and I2C buses, plus the basics every process
+# gets (/dev/null, /dev/urandom and so on).
+DevicePolicy=closed
+DeviceAllow=char-gpiochip rw
+DeviceAllow=char-i2c rw
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

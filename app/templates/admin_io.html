@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+{% block title %}Inputs and outputs{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+{% macro point_table(points, kind) %}
+  <table class="data">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">GPIO</th>
+        <th scope="col">{{ "Type" if kind == "output" else "Wiring" }}</th>
+        <th scope="col"><span class="visually-hidden">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for p in points %}
+      <tr>
+        <td data-label="Name">
+          {{ p.name }}
+          {% if io.errors.get(p.id) %}<br><span class="error-text">{{ io.errors[p.id] }}</span>{% endif %}
+        </td>
+        <td data-label="GPIO" class="num">{{ p.pin }} <span class="muted">(pin {{ p.physical_pin }})</span></td>
+        <td data-label="{{ 'Type' if kind == 'output' else 'Wiring' }}">
+          {% if kind == "output" %}
+            {{ (p.pulse_seconds | pulse) ~ " pulse" if p.mode == "pulse" else "On/off" }}{% if not p.active_high %}, triggers on low{% endif %}
+          {% else %}
+            {{ wiring[p.wiring].label }}
+          {% endif %}
+        </td>
+        <td class="action row-actions">
+          <form method="post" action="{{ url_for('main.admin_io_move', point_id=p.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" name="direction" value="up" class="icon-button" {% if loop.first %}disabled{% endif %} aria-label="Move {{ p.name }} up">&uarr;</button>
+            <button type="submit" name="direction" value="down" class="icon-button" {% if loop.last %}disabled{% endif %} aria-label="Move {{ p.name }} down">&darr;</button>
+          </form>
+          <a href="{{ url_for('main.admin_io_edit', point_id=p.id) }}">Edit</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
+<section aria-labelledby="out-heading" class="admin-section">
+  <div class="section-head">
+    <h2 id="out-heading">Outputs</h2>
+    <a class="button button-secondary" href="{{ url_for('main.admin_io_new', kind='output') }}">Add an output</a>
+  </div>
+  {% if outputs %}{{ point_table(outputs, "output") }}
+  {% else %}<p class="muted">Relays the Pi switches: lights, gates, door strikes, pumps.</p>{% endif %}
+</section>
+
+<section aria-labelledby="in-heading" class="admin-section">
+  <div class="section-head">
+    <h2 id="in-heading">Inputs</h2>
+    <a class="button button-secondary" href="{{ url_for('main.admin_io_new', kind='input') }}">Add an input</a>
+  </div>
+  {% if inputs %}{{ point_table(inputs, "input") }}
+  {% else %}<p class="muted">On/off things the Pi watches: door contacts, buttons, motion detectors.</p>{% endif %}
+</section>
+
+<section aria-labelledby="sensor-heading" class="admin-section">
+  <div class="section-head">
+    <h2 id="sensor-heading">Sensors</h2>
+    <a class="button button-secondary" href="{{ url_for('main.admin_sensor_pick') }}">Add a sensor</a>
+  </div>
+  {% if sensors %}
+  <table class="data">
+    <thead>
+      <tr><th scope="col">Name</th><th scope="col">Sensor</th><th scope="col">Reading now</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+    </thead>
+    <tbody>
+    {% for p in sensors %}
+      <tr>
+        <td data-label="Name">{{ p.name }}</td>
+        <td data-label="Sensor">{{ sensor_types[p.sensor_type].label.split(' ')[0] }} {{ quantities[p.quantity].label | lower }} <span class="muted">({{ p.address }}{% if p.pin %}, GPIO {{ p.pin }}{% endif %})</span></td>
+        <td data-label="Reading now">{{ io.state_text(p) }}</td>
+        <td class="action row-actions">
+          <form method="post" action="{{ url_for('main.admin_io_move', point_id=p.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" name="direction" value="up" class="icon-button" {% if loop.first %}disabled{% endif %} aria-label="Move {{ p.name }} up">&uarr;</button>
+            <button type="submit" name="direction" value="down" class="icon-button" {% if loop.last %}disabled{% endif %} aria-label="Move {{ p.name }} down">&darr;</button>
+          </form>
+          <a href="{{ url_for('main.admin_io_edit', point_id=p.id) }}">Edit</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">Temperature, humidity and pressure readings, for showing on the Controls page and for rules.</p>{% endif %}
+</section>
+
+<p class="muted admin-note">The order here is the order on the Controls page. Changes apply straight away, without a restart.</p>
+{% endblock %}

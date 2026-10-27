@@ -1,0 +1,30 @@
+# CoilGate on the internet, with a free, trusted certificate from Let's Encrypt.
+#
+# Needs: a domain name (an A record) pointing at your public IP address, and
+# ports 80 and 443 forwarded from your router to the Pi. Caddy fetches and
+# renews the certificate by itself.
+#
+# Install:  sudo cp deploy/Caddyfile.internet /etc/caddy/Caddyfile
+#           (edit the two marked lines)  sudo systemctl reload caddy
+
+{
+	# Let's Encrypt emails this address if a certificate can't be renewed.
+	email you@example.com
+}
+
+# The name you'll type in the browser.
+home.coilgate.io {
+	encode zstd gzip
+
+	header {
+		-Server
+	}
+
+	# CoilGate accepts at most 32 KB per request; refuse anything bigger here.
+	request_body {
+		max_size 64KB
+	}
+
+	# Caddy passes the visitor's address on in X-Forwarded-For.
+	reverse_proxy 127.0.0.1:8000
+}

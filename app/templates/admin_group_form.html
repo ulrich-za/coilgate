@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block title %}{{ group.name if group else "Add a group" }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<div class="narrow wide-narrow">
+  <p class="back"><a href="{{ url_for('main.admin_groups') }}">Back to groups</a></p>
+  <h2 class="form-title">{{ group.name if group else "Add a group" }}{% if group and group.builtin %} <span class="tag tag-off">Built in</span>{% endif %}</h2>
+  {% if group and group.is_admin %}
+  <p class="lede">Admins can do everything, including managing groups and admin accounts, so only the two-step requirement can be changed here.</p>
+  {% elif group and group.builtin %}
+  <p class="lede">A built-in group: its name stays, and it can't be removed, but you can change what it may do.</p>
+  {% endif %}
+
+  {% if errors %}
+  <div class="problems" role="alert">
+    <p>Not saved yet:</p>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  {% set fixed = group and group.is_admin %}
+  <form method="post" class="stack group-form" action="{{ url_for('main.admin_group_edit', group_id=group.id) if group else url_for('main.admin_group_new') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    {% if not group or not group.builtin %}
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" value="{{ values.name }}" maxlength="40" required
+             placeholder="Viewers" {% if not group %}autofocus{% endif %}>
+    </div>
+    {% endif %}
+
+    <fieldset class="perm-group">
+      <legend>Sign-in</legend>
+      <label class="check"><input type="checkbox" name="require_2fa" {% if values.require_2fa %}checked{% endif %}> Require two-step verification</label>
+      <p class="hint">Accounts in this group set it up at their next sign-in, and can't turn it off. Untick it for people who don't use an authenticator app; they can still turn it on for themselves under Account. Without it, a password is all that stands between the internet and what this group can do, so keep their privileges to what they need.</p>
+    </fieldset>
+
+    {% for section in sections %}
+    <fieldset class="perm-group" {% if fixed %}disabled{% endif %}>
+      <legend>{{ section }}</legend>
+      {% if section == "Settings" %}<p class="hint">Changing a section includes seeing all settings. Sections a group can't change are shown greyed out to it.</p>{% endif %}
+      {% for p in privileges if p.section == section %}
+      <label class="check-row"><input type="checkbox" name="priv" value="{{ p.key }}" {% if fixed or p.key in values.privileges %}checked{% endif %}>
+        <span><strong>{{ p.label }}</strong><span class="hint">{{ p.help }}</span></span></label>
+      {% endfor %}
+    </fieldset>
+    {% if section == "Setup" %}
+    <fieldset class="perm-group" {% if fixed %}disabled{% endif %}>
+      <legend>Accounts</legend>
+      <p class="hint">Add, change, disable and remove accounts in these groups: issue temporary passwords, reset two-step verification, set access schedules, and move accounts between them. Only admins manage admin accounts.</p>
+      {% for other in groups.values() if not other.is_admin %}
+      <label class="check-row"><input type="checkbox" name="manages" value="{{ other.id }}" {% if fixed or other.id in values.targets %}checked{% endif %}>
+        <span><strong>{{ other.name }}</strong>{% if group and other.id == group.id %}<span class="hint">This group: its members could manage each other.</span>{% endif %}</span></label>
+      {% endfor %}
+      {% if not group %}
+      <label class="check-row"><input type="checkbox" name="manages_self" {% if "self" in values.targets %}checked{% endif %}>
+        <span><strong>This new group</strong><span class="hint">Its members could manage each other.</span></span></label>
+      {% endif %}
+      {% if fixed %}<label class="check-row"><input type="checkbox" checked><span><strong>Admin</strong></span></label>{% endif %}
+    </fieldset>
+    {% endif %}
+    {% endfor %}
+
+    <div class="actions">
+      <button type="submit" class="button button-primary">{{ "Save group" if group else "Add group" }}</button>
+      <a href="{{ url_for('main.admin_groups') }}" class="button button-secondary">Cancel</a>
+    </div>
+  </form>
+
+  {% if group %}
+  <section class="manage-block" aria-labelledby="members-heading">
+    <h3 id="members-heading">Accounts in {{ group.name }}</h3>
+    {% if members %}
+    <ul class="member-list">
+      {% for m in members %}<li><a href="{{ url_for('main.admin_user_edit', user_id=m.id) }}">{{ m.username }}</a>{% if not m.is_active %} <span class="muted">(disabled)</span>{% endif %}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">None yet. Choose this group when you add an account, or change an account's group under Accounts.</p>
+    {% endif %}
+  </section>
+
+  {% if not group.builtin %}
+  <section class="danger-zone" aria-labelledby="delete-heading">
+    <h3 id="delete-heading">Remove group</h3>
+    {% if members %}
+    <p class="muted">Move its accounts to another group first.</p>
+    {% else %}
+    <p class="muted">No accounts are in it, so it can go.</p>
+    <form method="post" action="{{ url_for('main.admin_group_delete', group_id=group.id) }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="actions"><button type="submit" class="button button-danger">Remove {{ group.name }}</button></div>
+    </form>
+    {% endif %}
+  </section>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

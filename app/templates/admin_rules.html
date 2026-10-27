@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block title %}Rules{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<section class="admin-section" aria-labelledby="rules-heading">
+  <div class="section-head">
+    <h2 id="rules-heading">Rules</h2>
+    {% if has_outputs %}<a class="button button-secondary" href="{{ url_for('main.admin_rule_pick') }}">Add a rule</a>{% endif %}
+  </div>
+  <p class="muted section-lede">Rules switch outputs for you: when an input changes, a sensor reading passes a value, a schedule starts, or another rule becomes active. A rule is <strong>active</strong> while its condition is met. Inputs are acted on at once; everything else is checked every second.</p>
+
+  {% if items %}
+  <ul class="rule-list">
+  {% for item in items %}
+    {% set r = item.rule %}
+    <li class="rule-card{% if not r.enabled %} rule-off{% endif %}">
+      <p class="rule-sentence">{% for text, strong in item.parts %}{% if strong %}<strong>{{ text }}</strong>{% else %}{{ text }}{% endif %}{% endfor %}</p>
+      <div class="rule-meta">
+        <span class="rule-name">{{ r.name }}</span>
+        {% if not r.enabled %}
+          <span class="result off">Switched off</span>
+        {% elif item.paused %}
+          <span class="result fail">Paused for {{ item.paused }} s more: it acted more than {{ max_actions }} times in a minute</span>
+        {% elif item.state.active %}
+          <span class="result ok">Active now</span>
+        {% else %}
+          <span class="result idle">Waiting</span>
+        {% endif %}
+        <span class="muted">{% if item.row.last_fired_at %}Last ran {{ item.row.last_fired_at | ago }}{% else %}Hasn't run yet{% endif %}</span>
+        {% if item.state.last_error %}<span class="error-text">{{ item.state.last_error }}</span>{% endif %}
+      </div>
+      <div class="rule-actions">
+        <a href="{{ url_for('main.admin_rule_edit', rule_id=r.id) }}">Edit</a>
+        {% if item.paused and r.enabled %}
+        <form method="post" action="{{ url_for('main.admin_rule_resume', rule_id=r.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button">Resume now</button>
+        </form>
+        {% endif %}
+        <form method="post" action="{{ url_for('main.admin_rule_toggle', rule_id=r.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button">{{ "Switch off" if r.enabled else "Switch on" }}</button>
+        </form>
+      </div>
+    </li>
+  {% endfor %}
+  </ul>
+  <p class="muted admin-note">A rule acts when its condition starts or stops being true, so you can still switch an output by hand in between. If two rules control the same output, whichever acts last wins.</p>
+  {% elif has_outputs %}
+  <div class="empty">
+    <h2>No rules yet</h2>
+    <p>For example: when the front door opens after dark, turn on the porch light. Or when the living room goes above 26 °C, turn on the aircon.</p>
+    <p class="actions"><a class="button button-primary" href="{{ url_for('main.admin_rule_pick') }}">Add a rule</a></p>
+  </div>
+  {% else %}
+  <div class="empty">
+    <h2>Add an output first</h2>
+    <p>Rules switch outputs, so you'll need at least one relay set up.</p>
+    {% if can("io") %}<p class="actions"><a class="button button-primary" href="{{ url_for('main.admin_io_new', kind='output') }}">Add an output</a></p>{% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}Add an account{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="narrow">
+  <p class="back"><a href="{{ url_for('main.admin_users') }}">Back to accounts</a></p>
+  <h2 class="form-title">Add an account</h2>
+  <p class="lede">{{ product_name }} makes a temporary password for you to pass on. At their first sign-in they choose their own password, and set up two-step verification if their group needs it.</p>
+
+  {% if error %}<p class="problems" role="alert">{{ error }}</p>{% endif %}
+
+  <form method="post" action="{{ url_for('main.admin_user_new') }}" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" value="{{ username }}" maxlength="32" required
+             autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" autofocus aria-describedby="username-hint">
+      <p class="hint" id="username-hint">Lowercase letters, digits, dots, dashes or underscores.</p>
+    </div>
+    <fieldset class="field">
+      <legend>Group</legend>
+      {% for gr in group_choices %}
+      <label class="choice"><input type="radio" name="group_id" value="{{ gr.id }}" {% if gr.id == group_id %}checked{% endif %}>
+        <span><strong>{{ gr.name }}</strong>{% if not gr.require_2fa %} <span class="tag tag-quiet">No two-step</span>{% endif %}<br><span class="hint">{{ summaries[gr.id] }}</span></span></label>
+      {% endfor %}
+      {% if group_choices | length == 1 %}<p class="hint">Your group can add accounts to {{ group_choices[0].name }} only.</p>{% endif %}
+    </fieldset>
+    <div class="field">
+      <label for="schedule_id">Can use the controls</label>
+      <select id="schedule_id" name="schedule_id" aria-describedby="schedule-hint">
+        {% for s in schedules %}
+          <option value="{{ s.id }}" {% if (schedule_id is none and s.builtin) or s.id == schedule_id %}selected{% endif %}>{{ s.name }}</option>
+        {% endfor %}
+      </select>
+      <p class="hint" id="schedule-hint">Admins can always use the controls. Outside these times anyone else can sign in and see the controls, but not switch anything.</p>
+    </div>
+    <div class="actions">
+      <button type="submit" class="button button-primary">Create account</button>
+      <a href="{{ url_for('main.admin_users') }}" class="button button-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

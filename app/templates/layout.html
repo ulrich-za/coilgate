@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block body_class %}app-page{% endblock %}
+{% block body %}
+<header class="topbar">
+  <a class="wordmark" href="{{ url_for('main.controls') }}">
+    <span class="lamp lamp-inline" aria-hidden="true"></span>{{ app_name }}
+  </a>
+  {% if not setup_pending %}
+  <nav class="mainnav" aria-label="Main">
+    {% set ep = request.endpoint or '' %}
+    <a href="{{ url_for('main.controls') }}" {% if ep == 'main.controls' %}aria-current="page"{% endif %}>Controls</a>
+    <a href="{{ url_for('main.pinout_page') }}" {% if ep == 'main.pinout_page' %}aria-current="page"{% endif %}>Pinout</a>
+    <a href="{{ url_for('main.account') }}" {% if ep.startswith('main.account') or ep in ('main.change_password', 'main.two_step') %}aria-current="page"{% endif %}>Account</a>
+    {% if show_admin %}
+    <a href="{{ url_for('main.admin_home') }}" {% if ep.startswith('main.admin') %}aria-current="page"{% endif %}>Admin</a>
+    {% endif %}
+  </nav>
+  {% else %}
+  <span class="mainnav"></span>
+  {% endif %}
+  <div class="topbar-user">
+    <span class="whoami">{{ g.user.username }}</span>
+    <form method="post" action="{{ url_for('main.logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="button button-quiet">Sign out</button>
+    </form>
+  </div>
+</header>
+<main class="page">
+  {% block flashes %}{% include "_flashes.html" %}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+{% block scripts %}{% endblock %}
+{% endblock %}

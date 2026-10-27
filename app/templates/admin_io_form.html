@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% set noun = kind %}
+{% set article = "a" if kind == "sensor" else "an" %}
+{% block title %}{{ ("Edit " ~ v.name) if point_id else ("Add " ~ article ~ " " ~ noun) }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<div class="narrow">
+  <p class="back"><a href="{{ url_for('main.admin_io') }}">Back to inputs and outputs</a></p>
+  <h2 class="form-title">{{ ("Edit " ~ v.name) if point_id else ("Add " ~ article ~ " " ~ noun) }}</h2>
+
+  {% if errors %}
+  <div class="problems" role="alert">
+    <p>Not saved yet:</p>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <form method="post" class="stack" action="{{ url_for('main.admin_io_edit', point_id=point_id) if point_id else (url_for('main.admin_io_new', sensor_type=v.sensor_type) if kind == 'sensor' else url_for('main.admin_io_new', kind=kind)) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" value="{{ v.name }}" maxlength="60" required
+             placeholder="{{ {'output': 'Porch light', 'input': 'Front door', 'sensor': 'Living Room Temperature'}[kind] }}" {% if not point_id %}autofocus{% endif %}>
+    </div>
+
+    {% if kind == "sensor" %}
+    {% include "_sensor_fields.html" %}
+    {% else %}
+    <div class="field">
+      <label for="pin">GPIO pin</label>
+      <select id="pin" name="pin" required aria-describedby="pin-hint">
+        <option value="" {% if not v.pin %}selected{% endif %} disabled>Choose a pin</option>
+        {% for o in pins %}
+          <option value="{{ o.pin }}" {% if o.pin == v.pin %}selected{% endif %} {% if o.taken_by %}disabled{% endif %}>
+            GPIO {{ o.pin }}, header pin {{ o.physical }}{% if o.taken_by %} (used by {{ o.taken_by }}){% elif o.note %} ({{ o.note }}){% endif %}
+          </option>
+        {% endfor %}
+      </select>
+      <p class="hint" id="pin-hint">GPIO numbers are what the software uses; the header pin is the physical position on the Pi.</p>
+    </div>
+
+    {% if kind == "output" %}
+    <fieldset class="field">
+      <legend>Behaviour</legend>
+      <label class="choice"><input type="radio" name="mode" value="toggle" {% if v.mode != "pulse" %}checked{% endif %}>
+        <span><strong>On/off</strong><br><span class="hint">Stays on until switched off. For lights, pumps, sockets.</span></span></label>
+      <label class="choice"><input type="radio" name="mode" value="pulse" {% if v.mode == "pulse" %}checked{% endif %}>
+        <span><strong>Pulse</strong><br><span class="hint">Switches on for a set time, then off. For gates, door strikes, timers.</span></span></label>
+    </fieldset>
+
+    <div class="field">
+      <label for="pulse_value">Pulse length</label>
+      <div class="inline-fields">
+        <input id="pulse_value" name="pulse_value" type="number" min="0.1" step="0.1" value="{{ pulse_value }}" aria-describedby="pulse-hint">
+        <select name="pulse_unit" aria-label="Pulse length unit">
+          <option value="s" {% if pulse_unit == "s" %}selected{% endif %}>seconds</option>
+          <option value="min" {% if pulse_unit == "min" %}selected{% endif %}>minutes</option>
+          <option value="h" {% if pulse_unit == "h" %}selected{% endif %}>hours</option>
+        </select>
+      </div>
+      <p class="hint" id="pulse-hint">Used when the behaviour is Pulse. From 0.1 seconds to {{ max_hours }} hours; a pulse can be stopped early from the Controls page.</p>
+    </div>
+
+    <fieldset class="field">
+      <legend>The relay board switches on when the signal is</legend>
+      <label class="choice"><input type="radio" name="trigger" value="high" {% if v.active_high %}checked{% endif %}>
+        <span><strong>High</strong> (recommended)<br><span class="hint">Stays off while the Pi boots and whenever {{ product_name }} isn't running.</span></span></label>
+      <label class="choice"><input type="radio" name="trigger" value="low" {% if not v.active_high %}checked{% endif %}>
+        <span><strong>Low</strong><br><span class="hint">For boards marked active-low, or with the jumper on L.</span></span></label>
+    </fieldset>
+    {% else %}
+    <fieldset class="field">
+      <legend>Wiring</legend>
+      {% for key, w in wiring.items() %}
+      <label class="choice"><input type="radio" name="wiring" value="{{ key }}" {% if v.wiring == key %}checked{% endif %}>
+        <span><strong>{{ w.label }}</strong><br><span class="hint">{{ w.help }}</span></span></label>
+      {% endfor %}
+    </fieldset>
+
+    <div class="field">
+      <label for="bounce_ms">Debounce</label>
+      <div class="inline-fields">
+        <input id="bounce_ms" name="bounce_ms" type="number" min="0" max="1000" step="1" value="{{ v.bounce_ms }}" aria-describedby="bounce-hint">
+        <span class="unit">ms</span>
+      </div>
+      <p class="hint" id="bounce-hint">Ignores the flicker of a mechanical contact closing. 50 ms suits most switches.</p>
+    </div>
+    {% endif %}
+
+    <fieldset class="field">
+      <legend>What to call each state</legend>
+      <div class="label-pair">
+        <div class="field">
+          <label for="on_label">{{ "When on" if kind == "output" else "When active (contact closed)" }}</label>
+          <input id="on_label" name="on_label" type="text" maxlength="24" value="{{ v.on_label }}"
+                 placeholder="{{ 'On' if kind == 'output' else 'Closed' }}">
+        </div>
+        <div class="field">
+          <label for="off_label">{{ "When off" if kind == "output" else "When inactive" }}</label>
+          <input id="off_label" name="off_label" type="text" maxlength="24" value="{{ v.off_label }}"
+                 placeholder="{{ ('Ready' if v.mode == 'pulse' else 'Off') if kind == 'output' else 'Open' }}">
+        </div>
+      </div>
+      <p class="hint">Optional. For example, a door contact that's closed when the door is shut could say "Shut" and "Open".</p>
+    </fieldset>
+
+    {% endif %}
+
+    <div class="actions">
+      <button type="submit" class="button button-primary">{{ "Save changes" if point_id else "Add " ~ noun }}</button>
+      <a href="{{ url_for('main.admin_io') }}" class="button button-secondary">Cancel</a>
+    </div>
+  </form>
+
+  {% if point_id %}
+  <section class="danger-zone" aria-labelledby="remove-heading">
+    <h2 id="remove-heading">Remove this {{ noun }}</h2>
+    {% if used_by %}
+    <p class="muted">Rules use it, so it can't be removed yet: {{ used_by | join(", ") }}. Change or remove those rules first.</p>
+    {% else %}
+    <p class="muted">{% if kind == "output" %}It's switched off and its pin released. {% endif %}Its history stays in the activity log.</p>
+    <form method="post" action="{{ url_for('main.admin_io_delete', point_id=point_id) }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="check"><input type="checkbox" name="confirm" value="yes" required> Yes, remove {{ v.name }}</label>
+      <div class="actions"><button type="submit" class="button button-danger">Remove</button></div>
+    </form>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

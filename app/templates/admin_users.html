@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}Accounts{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<section class="admin-section" aria-labelledby="users-heading">
+  <div class="section-head">
+    <h2 id="users-heading">Accounts</h2>
+    <a class="button button-secondary" href="{{ url_for('main.admin_user_new') }}">Add an account</a>
+  </div>
+  <table class="data">
+    <thead>
+      <tr><th scope="col">Username</th><th scope="col">Group</th><th scope="col">Can use controls</th><th scope="col">Two-step</th><th scope="col">Last sign-in</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+      <tr>
+        <td data-label="Username">
+          {{ u.username }}{% if u.id == g.user.user_id %} <span class="muted">(you)</span>{% endif %}
+          {% if not u.is_active %}<span class="tag tag-off">Disabled</span>
+          {% elif u.must_change_password %}<span class="tag tag-wait">Not signed in yet</span>{% endif %}
+        </td>
+        {% set grp = groups.get(u.group_id) %}
+        <td data-label="Group">{{ grp.name if grp else "None" }}</td>
+        <td data-label="Can use controls">{% if not grp or not grp.access().can("control") %}View only{% elif grp.is_admin or not u.schedule_id %}Any time{% else %}{{ schedules[u.schedule_id].name if schedules.get(u.schedule_id) else "Any time" }}{% endif %}</td>
+        <td data-label="Two-step"><span class="result {{ 'ok' if u.totp_enabled else 'off' }}">{{ "On" if u.totp_enabled else ("Off" if not grp or not grp.require_2fa else "Not set up yet") }}</span></td>
+        <td data-label="Last sign-in">{{ u.last_login_at | when }}</td>
+        <td class="action">{% if access.can_manage(u.group_id) %}<a href="{{ url_for('main.admin_user_edit', user_id=u.id) }}">Manage</a>{% else %}<span class="muted" title="Your group can't manage accounts in {{ grp.name if grp else 'this group' }}">Can't manage</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted admin-note">What each group can do is set {% if can("groups") %}under <a href="{{ url_for('main.admin_groups') }}">Groups</a>{% else %}by an admin{% endif %}. {% if not is_admin %}You can manage accounts in {% for gr in groups.values() if access.can_manage(gr.id) %}{{ gr.name }}{{ ", " if not loop.last }}{% endfor %}.{% endif %} Access schedules limit when an account can switch outputs; admins aren't limited.</p>
+</section>
+{% endblock %}

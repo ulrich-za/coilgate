@@ -1,0 +1,13 @@
+{% set ep = request.endpoint or '' %}
+<div class="admin-head">
+  <h1>Admin</h1>
+  <nav class="tabs" aria-label="Admin sections">
+    {% if can("io") %}<a href="{{ url_for('main.admin_io') }}" {% if ep.startswith('main.admin_io') or ep == 'main.admin_sensor_pick' %}aria-current="page"{% endif %}>Inputs and outputs</a>{% endif %}
+    {% if can("rules") %}<a href="{{ url_for('main.admin_rules') }}" {% if ep.startswith('main.admin_rule') %}aria-current="page"{% endif %}>Rules</a>{% endif %}
+    {% if can("schedules") %}<a href="{{ url_for('main.admin_schedules') }}" {% if ep.startswith('main.admin_schedule') %}aria-current="page"{% endif %}>Schedules</a>{% endif %}
+    {% if can("accounts") %}<a href="{{ url_for('main.admin_users') }}" {% if ep.startswith('main.admin_user') %}aria-current="page"{% endif %}>Accounts</a>{% endif %}
+    {% if can("groups") %}<a href="{{ url_for('main.admin_groups') }}" {% if ep.startswith('main.admin_group') %}aria-current="page"{% endif %}>Groups</a>{% endif %}
+    {% if can("settings_view") %}<a href="{{ url_for('main.admin_settings') }}" {% if ep == 'main.admin_settings' %}aria-current="page"{% endif %}>Settings</a>{% endif %}
+    {% if can("activity") %}<a href="{{ url_for('main.admin_activity') }}" {% if ep == 'main.admin_activity' %}aria-current="page"{% endif %}>Activity</a>{% endif %}
+  </nav>
+</div>

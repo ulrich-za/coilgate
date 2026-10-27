@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% from "_schedule_chart.html" import chart %}
+{% block title %}{{ ("Edit " ~ schedule.name) if schedule else "Add a schedule" }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<div class="narrow wide-narrow">
+  <p class="back"><a href="{{ url_for('main.admin_schedules') }}">Back to schedules</a></p>
+  <h2 class="form-title">{{ ("Edit " ~ schedule.name) if schedule else "Add a schedule" }}</h2>
+
+  {% if errors %}
+  <div class="problems" role="alert">
+    <p>Not saved yet:</p>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <form method="post" class="stack" action="{{ url_for('main.admin_schedule_edit', schedule_id=schedule.id) if schedule else url_for('main.admin_schedule_new') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="rows" value="{{ rows | length }}">
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" value="{{ name }}" maxlength="40" required
+             placeholder="Business hours" {% if not schedule %}autofocus{% endif %}>
+    </div>
+
+    <fieldset class="field">
+      <legend>Times</legend>
+      <p class="hint">Tick the days, then set the times. A window that ends earlier than it starts, such as 22:00 to 06:00, runs overnight into the next day. Use 00:00 as the end for midnight. Leave spare rows empty; save to get more.</p>
+      <div class="windows">
+      {% for row in rows %}
+        {% set i = loop.index0 %}
+        <div class="window-row">
+          <div class="day-picks" role="group" aria-label="Days for time window {{ loop.index }}">
+            {% for d in range(7) %}
+              <label class="day-pick"><input type="checkbox" name="w{{ i }}_days" value="{{ d }}" {% if (row.days // (2 ** d)) % 2 == 1 %}checked{% endif %}><span>{{ days[d] }}</span></label>
+            {% endfor %}
+          </div>
+          <div class="time-pair">
+            <label class="visually-hidden" for="w{{ i }}_start">From</label>
+            <input id="w{{ i }}_start" name="w{{ i }}_start" type="time" value="{{ row.start }}" aria-label="From, window {{ loop.index }}">
+            <span class="unit">to</span>
+            <label class="visually-hidden" for="w{{ i }}_end">To</label>
+            <input id="w{{ i }}_end" name="w{{ i }}_end" type="time" value="{{ row.end }}" aria-label="To, window {{ loop.index }}">
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    </fieldset>
+
+    {% if preview.windows %}
+    <div class="field">
+      <p class="label-like">As saved</p>
+      <div class="chart-panel">{{ chart(preview, days) }}</div>
+    </div>
+    {% endif %}
+
+    <div class="actions">
+      <button type="submit" class="button button-primary">{{ "Save changes" if schedule else "Add schedule" }}</button>
+      <a href="{{ url_for('main.admin_schedules') }}" class="button button-secondary">Cancel</a>
+    </div>
+  </form>
+
+  {% if schedule %}
+  <section class="danger-zone" aria-labelledby="remove-heading">
+    <h2 id="remove-heading">Remove this schedule</h2>
+    {% if usage.rules or usage.users %}
+      <p class="muted">It's in use, so it can't be removed yet.
+        {% if usage.rules %}Rules: {{ usage.rules | join(", ") }}.{% endif %}
+        {% if usage.users %}Accounts: {{ usage.users | join(", ") }}.{% endif %}
+      </p>
+    {% else %}
+      <p class="muted">Nothing uses it at the moment.</p>
+      <form method="post" action="{{ url_for('main.admin_schedule_delete', schedule_id=schedule.id) }}" class="stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="check"><input type="checkbox" name="confirm" value="yes" required> Yes, remove {{ schedule.name }}</label>
+        <div class="actions"><button type="submit" class="button button-danger">Remove</button></div>
+      </form>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

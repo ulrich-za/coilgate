@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block title %}Two-step verification{% endblock %}
+{% block content %}
+<div class="narrow">
+  {% if not setup_pending %}<p class="back"><a href="{{ url_for('main.account') }}">Back to your account</a></p>{% endif %}
+  <h1>Two-step verification</h1>
+
+  {% if error %}<p class="problems" role="alert">{{ error }}</p>{% endif %}
+
+  {% if enabled %}
+    <p class="lede">Two-step verification is on. Each sign-in asks for a code from your authenticator app after your password.</p>
+    {% if required %}
+      <p class="muted">Your group, {{ access.group_name }}, needs it, so it can't be turned off. If you lose your phone, an admin can reset it for you.</p>
+    {% else %}
+    <h2>Turn it off</h2>
+    <p>Confirm with your password and a current code.</p>
+    <form method="post" action="{{ url_for('main.two_step_disable') }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="text" name="username" value="{{ g.user.username }}" autocomplete="username" hidden>
+      <div class="field">
+        <label for="current_password">Password</label>
+        <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="field">
+        <label for="code">Verification code</label>
+        <input id="code" name="code" class="code-input" type="text" inputmode="numeric"
+               pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" required>
+      </div>
+      <div class="actions">
+        <button type="submit" class="button button-danger">Turn off two-step verification</button>
+      </div>
+    </form>
+    {% endif %}
+  {% else %}
+    {% if setup_pending %}
+      <p class="lede">Your group on {{ app_name }} needs two-step verification. Set it up to continue: after your password, each sign-in will also ask for a 6-digit code from an authenticator app such as Ente Auth, Bitwarden, Google Authenticator or Microsoft Authenticator.</p>
+    {% else %}
+      <p class="lede">After your password, you'll also enter a 6-digit code from an authenticator app such as Ente Auth, Bitwarden, Google Authenticator or Microsoft Authenticator.</p>
+    {% endif %}
+
+    <ol class="steps">
+      <li>
+        <h2>Add {{ app_name }} to your app</h2>
+        <p>Scan this QR code with your authenticator app.</p>
+        <img class="qr" src="{{ qr }}" width="200" height="200" alt="QR code for adding {{ app_name }} to an authenticator app">
+        <p>Can't scan it? Choose manual entry in the app and type this key:</p>
+        <p class="secret">{{ secret }}</p>
+      </li>
+      <li>
+        <h2>Enter the code it shows</h2>
+        <form method="post" action="{{ url_for('main.two_step') }}" class="stack">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="field">
+            <label for="code">Verification code</label>
+            <input id="code" name="code" class="code-input" type="text" inputmode="numeric"
+                   pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" required>
+          </div>
+          <div class="actions">
+            <button type="submit" class="button button-primary">Turn on two-step verification</button>
+          </div>
+        </form>
+      </li>
+    </ol>
+  {% endif %}
+</div>
+{% endblock %}

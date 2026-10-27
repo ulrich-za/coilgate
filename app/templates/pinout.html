@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+{% from "_pin_map.html" import header, orientation %}
+{% block title %}Pinout{% endblock %}
+{% block content %}
+<div class="intro">
+  <h1>Pinout</h1>
+  <p class="lede">The Raspberry Pi 5's 40-pin header. Pins {{ product_name }} uses light up as outputs switch and inputs change. Choose an interface to see its pins, or a pin to see everything it can do.</p>
+</div>
+
+<div class="pinout-layout" data-live-state="{{ url_for('main.controls_state') }}" data-version="{{ version }}" data-setup="{{ setup }}" data-activity="0">
+  <section class="pinout-board" aria-label="Header">
+    {{ header(rows, io) }}
+    <div class="pinout-legend">
+      <ul class="legend-list">
+        <li><span class="legend-dot" data-type="3v3"></span>3.3 V power</li>
+        <li><span class="legend-dot" data-type="5v"></span>5 V power</li>
+        <li><span class="legend-dot" data-type="ground"></span>Ground</li>
+        <li><span class="legend-dot" data-type="gpio"></span>GPIO</li>
+        <li><span class="legend-dot legend-on"></span>Active (output on, input active)</li>
+        <li><span class="legend-level">H</span><span class="legend-level">L</span>Pin level: high (3.3 V) or low (0 V)</li>
+      </ul>
+      <div class="orientation">
+        {{ orientation() }}
+        <p class="muted">Hold the Pi with the header on the right and the USB and Ethernet ports at the bottom. Pin 1 is at the top of the left column; underneath the board it has a square solder pad.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pinout-info" aria-label="Details">
+    <div class="iface-tabs" role="tablist" aria-label="Interfaces" data-iface-tabs hidden>
+      <button type="button" role="tab" data-iface="coilgate" aria-selected="true">In use</button>
+      {% for i in interfaces %}
+      <button type="button" role="tab" data-iface="{{ i.id }}" aria-selected="false" data-map='{{ i.map | tojson }}'>{{ i.name }}</button>
+      {% endfor %}
+    </div>
+
+    <article class="iface-panel prose" data-panel="coilgate" id="iface-coilgate">
+      <h2>Pins in use</h2>
+      {% set used = [] %}
+      {% for pair in rows %}{% for pin in pair %}{% if pin.uses %}{% set _ = used.append(pin) %}{% endif %}{% endfor %}{% endfor %}
+      {% if used %}
+      <p>The pins {{ product_name }} is set up to use. A pin glows while its output is on or its input is active; H and L show the voltage on the pin, which is the other way round for relays that switch on when low.</p>
+      <div class="table-wrap"><table class="ref">
+        <thead><tr><th scope="col">Pin</th><th scope="col">GPIO</th><th scope="col">Used for</th><th scope="col">How</th></tr></thead>
+        <tbody>
+        {% for pin in used | sort(attribute="physical") %}{% for u in pin.uses %}
+          <tr><td>{{ pin.physical }}</td><td>{{ pin.bcm if pin.bcm is defined else "" }}</td><td>{{ u.name }}{% if u.role %} <span class="muted">({{ u.role }})</span>{% endif %}</td><td>{{ u.detail }}</td></tr>
+        {% endfor %}{% endfor %}
+        </tbody>
+      </table></div>
+      <p class="muted">{{ product_name }} only knows the signal pins. Power and ground wires, such as a relay board's VCC on pin 1, aren't shown.</p>
+      {% else %}
+      <p>No inputs, outputs or sensors are set up yet. {% if can("io") and show_admin %}Add them under <a href="{{ url_for('main.admin_io') }}">Admin &gt; Inputs and outputs</a>, and their pins light up here.{% endif %}</p>
+      {% endif %}
+    </article>
+
+    {% for i in interfaces %}
+    <article class="iface-panel prose" data-panel="{{ i.id }}" id="iface-{{ i.id }}">
+      <h2>{{ i.title }}</h2>
+      {{ i.html }}
+    </article>
+    {% endfor %}
+
+    {% for pair in rows %}{% for pin in pair %}
+    <article class="pin-detail prose" data-pin-detail="{{ pin.physical }}" id="pin-{{ pin.physical }}" hidden>
+      <p class="back"><button type="button" class="link-button" data-pin-close>Back</button></p>
+      <h2>Pin {{ pin.physical }}: {{ pin.name }}</h2>
+      <dl class="pin-facts">
+        {% if pin.type == "gpio" %}
+        <div><dt>GPIO number</dt><dd>{{ pin.bcm }} (what {{ product_name }}, gpiozero and pinctrl call it)</dd></div>
+        <div><dt>At power-on</dt><dd>Input, pulled {{ pin.pull }}</dd></div>
+        {% elif pin.type == "ground" %}
+        <div><dt>Type</dt><dd>Ground (0 V). All ground pins are connected together.</dd></div>
+        {% else %}
+        <div><dt>Type</dt><dd>{{ "3.3 V" if pin.type == "3v3" else "5 V" }} power supply</dd></div>
+        {% endif %}
+        {% for u in pin.uses %}
+        <div><dt>{{ product_name }}</dt><dd><strong>{{ u.name }}</strong>: {{ u.detail }}{% if u.role %} ({{ u.role }}){% endif %}</dd></div>
+        {% endfor %}
+      </dl>
+      {% if pin.functions %}
+      <h3>Pi 5 functions</h3>
+      <div class="table-wrap"><table class="ref fn-table">
+        <tbody>{% for code, name in pin.functions %}<tr><th scope="row">{{ code }}</th><td>{{ name }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+      {% endif %}
+      {% if pin.interfaces %}
+      <h3>Part of</h3>
+      <p class="pin-ifaces">{% for iid in pin.interfaces %}{% for i in interfaces if i.id == iid %}<button type="button" class="button button-quiet" data-goto-iface="{{ i.id }}">{{ i.name }}</button>{% endfor %}{% endfor %}</p>
+      {% endif %}
+    </article>
+    {% endfor %}{% endfor %}
+  </section>
+</div>
+
+<p class="attribution muted">Pin descriptions and the Pi 5 function table are adapted from <a href="https://pinout.xyz" rel="noopener noreferrer" target="_blank">Pinout.xyz</a> by Philip Howard and contributors (<a href="https://github.com/pinout-xyz/Pinout.xyz" rel="noopener noreferrer" target="_blank">source</a>), licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener noreferrer" target="_blank">CC BY-SA 4.0</a>: trimmed to the Raspberry Pi 5 and rebuilt from its RP1 function table, which Pinout.xyz generates from Raspberry Pi's pinctrl (BSD licence). Details are in <code>app/pinout_data/NOTICE.md</code>.</p>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='live.js') }}" defer></script>
+<script src="{{ url_for('static', filename='pins.js') }}" defer></script>
+{% endblock %}

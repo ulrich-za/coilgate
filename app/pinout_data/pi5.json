@@ -1,0 +1,1461 @@
+{
+ "_license": "CC BY-SA 4.0. Adapted from Pinout.xyz (https://pinout.xyz, https://github.com/pinout-xyz/Pinout.xyz) by Philip Howard and contributors. See NOTICE.md in this folder for the changes and other sources.",
+ "source_commit": "c203faef3c3f85c41a8cfa639ffa16912d99a457",
+ "board": "Raspberry Pi 5",
+ "header": [
+  {
+   "physical": 1,
+   "type": "3v3",
+   "name": "3v3 Power"
+  },
+  {
+   "physical": 2,
+   "type": "5v",
+   "name": "5v Power"
+  },
+  {
+   "physical": 3,
+   "type": "gpio",
+   "bcm": 2
+  },
+  {
+   "physical": 4,
+   "type": "5v",
+   "name": "5v Power"
+  },
+  {
+   "physical": 5,
+   "type": "gpio",
+   "bcm": 3
+  },
+  {
+   "physical": 6,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 7,
+   "type": "gpio",
+   "bcm": 4
+  },
+  {
+   "physical": 8,
+   "type": "gpio",
+   "bcm": 14
+  },
+  {
+   "physical": 9,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 10,
+   "type": "gpio",
+   "bcm": 15
+  },
+  {
+   "physical": 11,
+   "type": "gpio",
+   "bcm": 17
+  },
+  {
+   "physical": 12,
+   "type": "gpio",
+   "bcm": 18
+  },
+  {
+   "physical": 13,
+   "type": "gpio",
+   "bcm": 27
+  },
+  {
+   "physical": 14,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 15,
+   "type": "gpio",
+   "bcm": 22
+  },
+  {
+   "physical": 16,
+   "type": "gpio",
+   "bcm": 23
+  },
+  {
+   "physical": 17,
+   "type": "3v3",
+   "name": "3v3 Power"
+  },
+  {
+   "physical": 18,
+   "type": "gpio",
+   "bcm": 24
+  },
+  {
+   "physical": 19,
+   "type": "gpio",
+   "bcm": 10
+  },
+  {
+   "physical": 20,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 21,
+   "type": "gpio",
+   "bcm": 9
+  },
+  {
+   "physical": 22,
+   "type": "gpio",
+   "bcm": 25
+  },
+  {
+   "physical": 23,
+   "type": "gpio",
+   "bcm": 11
+  },
+  {
+   "physical": 24,
+   "type": "gpio",
+   "bcm": 8
+  },
+  {
+   "physical": 25,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 26,
+   "type": "gpio",
+   "bcm": 7
+  },
+  {
+   "physical": 27,
+   "type": "gpio",
+   "bcm": 0
+  },
+  {
+   "physical": 28,
+   "type": "gpio",
+   "bcm": 1
+  },
+  {
+   "physical": 29,
+   "type": "gpio",
+   "bcm": 5
+  },
+  {
+   "physical": 30,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 31,
+   "type": "gpio",
+   "bcm": 6
+  },
+  {
+   "physical": 32,
+   "type": "gpio",
+   "bcm": 12
+  },
+  {
+   "physical": 33,
+   "type": "gpio",
+   "bcm": 13
+  },
+  {
+   "physical": 34,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 35,
+   "type": "gpio",
+   "bcm": 19
+  },
+  {
+   "physical": 36,
+   "type": "gpio",
+   "bcm": 16
+  },
+  {
+   "physical": 37,
+   "type": "gpio",
+   "bcm": 26
+  },
+  {
+   "physical": 38,
+   "type": "gpio",
+   "bcm": 20
+  },
+  {
+   "physical": 39,
+   "type": "ground",
+   "name": "Ground"
+  },
+  {
+   "physical": 40,
+   "type": "gpio",
+   "bcm": 21
+  }
+ ],
+ "default_labels": {
+  "0": "EEPROM SDA",
+  "1": "EEPROM SCL",
+  "2": "I2C1 SDA",
+  "3": "I2C1 SCL",
+  "4": "GPCLK0",
+  "7": "SPI0 CE1",
+  "8": "SPI0 CE0",
+  "9": "SPI0 MISO",
+  "10": "SPI0 MOSI",
+  "11": "SPI0 SCLK",
+  "12": "PWM0 CHAN0",
+  "13": "PWM0 CHAN1",
+  "14": "UART0 TX",
+  "15": "UART0 RX",
+  "18": "PCM CLK",
+  "19": "PCM FS",
+  "20": "PCM DIN",
+  "21": "PCM DOUT"
+ },
+ "pulls": {
+  "0": "up",
+  "1": "up",
+  "2": "up",
+  "3": "up",
+  "4": "up",
+  "5": "up",
+  "6": "up",
+  "7": "up",
+  "8": "up",
+  "9": "down",
+  "10": "down",
+  "11": "down",
+  "12": "down",
+  "13": "down",
+  "14": "down",
+  "15": "down",
+  "16": "down",
+  "17": "down",
+  "18": "down",
+  "19": "down",
+  "20": "down",
+  "21": "down",
+  "22": "down",
+  "23": "down",
+  "24": "down",
+  "25": "down",
+  "26": "down",
+  "27": "down"
+ },
+ "functions": {
+  "0": [
+   "SPI0 SIO3",
+   "DPI PCLK",
+   "UART1 TXD",
+   "I2C0 SDA",
+   "",
+   "SYS RIO00",
+   "PROC RIO00",
+   "PIO0",
+   "SPI2 CE0"
+  ],
+  "1": [
+   "SPI0 SIO2",
+   "DPI DE",
+   "UART1 RXD",
+   "I2C0 SCL",
+   "",
+   "SYS RIO01",
+   "PROC RIO01",
+   "PIO1",
+   "SPI2 SIO1"
+  ],
+  "2": [
+   "SPI0 CE3",
+   "DPI VSYNC",
+   "UART1 CTS",
+   "I2C1 SDA",
+   "IR RX0",
+   "SYS RIO02",
+   "PROC RIO02",
+   "PIO2",
+   "SPI2 SIO0"
+  ],
+  "3": [
+   "SPI0 CE2",
+   "DPI HSYNC",
+   "UART1 RTS",
+   "I2C1 SCL",
+   "IR TX0",
+   "SYS RIO03",
+   "PROC RIO03",
+   "PIO3",
+   "SPI2 SCLK"
+  ],
+  "4": [
+   "GPCLK0",
+   "DPI D0",
+   "UART2 TXD",
+   "I2C2 SDA",
+   "UART0 RI",
+   "SYS RIO04",
+   "PROC RIO04",
+   "PIO4",
+   "SPI3 CE0"
+  ],
+  "5": [
+   "GPCLK1",
+   "DPI D1",
+   "UART2 RXD",
+   "I2C2 SCL",
+   "UART0 DTR",
+   "SYS RIO05",
+   "PROC RIO05",
+   "PIO5",
+   "SPI3 SIO1"
+  ],
+  "6": [
+   "GPCLK2",
+   "DPI D2",
+   "UART2 CTS",
+   "I2C3 SDA",
+   "UART0 DCD",
+   "SYS RIO06",
+   "PROC RIO06",
+   "PIO6",
+   "SPI3 SIO0"
+  ],
+  "7": [
+   "SPI0 CE1",
+   "DPI D3",
+   "UART2 RTS",
+   "I2C3 SCL",
+   "UART0 DSR",
+   "SYS RIO07",
+   "PROC RIO07",
+   "PIO7",
+   "SPI3 SCLK"
+  ],
+  "8": [
+   "SPI0 CE0",
+   "DPI D4",
+   "UART3 TXD",
+   "I2C0 SDA",
+   "",
+   "SYS RIO08",
+   "PROC RIO08",
+   "PIO8",
+   "SPI4 CE0"
+  ],
+  "9": [
+   "SPI0 MISO",
+   "DPI D5",
+   "UART3 RXD",
+   "I2C0 SCL",
+   "",
+   "SYS RIO09",
+   "PROC RIO09",
+   "PIO9",
+   "SPI4 SIO0"
+  ],
+  "10": [
+   "SPI0 MOSI",
+   "DPI D6",
+   "UART3 CTS",
+   "I2C1 SDA",
+   "",
+   "SYS RIO010",
+   "PROC RIO010",
+   "PIO10",
+   "SPI4 SIO1"
+  ],
+  "11": [
+   "SPI0 SCLK",
+   "DPI D7",
+   "UART3 RTS",
+   "I2C1 SCL",
+   "",
+   "SYS RIO011",
+   "PROC RIO011",
+   "PIO11",
+   "SPI4 SCLK"
+  ],
+  "12": [
+   "PWM0 CHAN0",
+   "DPI D8",
+   "UART4 TXD",
+   "I2C2 SDA",
+   "AAUD LEFT",
+   "SYS RIO012",
+   "PROC RIO012",
+   "PIO12",
+   "SPI5 CE0"
+  ],
+  "13": [
+   "PWM0 CHAN1",
+   "DPI D9",
+   "UART4 RXD",
+   "I2C2 SCL",
+   "AAUD RIGHT",
+   "SYS RIO013",
+   "PROC RIO013",
+   "PIO13",
+   "SPI5 SIO1"
+  ],
+  "14": [
+   "PWM0 CHAN2",
+   "DPI D10",
+   "UART4 CTS",
+   "I2C3 SDA",
+   "UART0 TXD",
+   "SYS RIO014",
+   "PROC RIO014",
+   "PIO14",
+   "SPI5 SIO0"
+  ],
+  "15": [
+   "PWM0 CHAN3",
+   "DPI D11",
+   "UART4 RTS",
+   "I2C3 SCL",
+   "UART0 RXD",
+   "SYS RIO015",
+   "PROC RIO015",
+   "PIO15",
+   "SPI5 SCLK"
+  ],
+  "16": [
+   "SPI1 CE2",
+   "DPI D12",
+   "DSI0 TE EXT",
+   "",
+   "UART0 CTS",
+   "SYS RIO016",
+   "PROC RIO016",
+   "PIO16",
+   ""
+  ],
+  "17": [
+   "SPI1 CE1",
+   "DPI D13",
+   "DSI1 TE EXT",
+   "",
+   "UART0 RTS",
+   "SYS RIO017",
+   "PROC RIO017",
+   "PIO17",
+   ""
+  ],
+  "18": [
+   "SPI1 CE0",
+   "DPI D14",
+   "I2S0 SCLK",
+   "PWM0 CHAN2",
+   "I2S1 SCLK",
+   "SYS RIO018",
+   "PROC RIO018",
+   "PIO18",
+   "GPCLK1"
+  ],
+  "19": [
+   "SPI1 MISO",
+   "DPI D15",
+   "I2S0 WS",
+   "PWM0 CHAN3",
+   "I2S1 WS",
+   "SYS RIO019",
+   "PROC RIO019",
+   "PIO19",
+   ""
+  ],
+  "20": [
+   "SPI1 MOSI",
+   "DPI D16",
+   "I2S0 SDI0",
+   "GPCLK0",
+   "I2S1 SDI0",
+   "SYS RIO020",
+   "PROC RIO020",
+   "PIO20",
+   ""
+  ],
+  "21": [
+   "SPI1 SCLK",
+   "DPI D17",
+   "I2S0 SDO0",
+   "GPCLK1",
+   "I2S1 SDO0",
+   "SYS RIO021",
+   "PROC RIO021",
+   "PIO21",
+   ""
+  ],
+  "22": [
+   "SD0 CLK",
+   "DPI D18",
+   "I2S0 SDI1",
+   "I2C3 SDA",
+   "I2S1 SDI1",
+   "SYS RIO022",
+   "PROC RIO022",
+   "PIO22",
+   ""
+  ],
+  "23": [
+   "SD0 CMD",
+   "DPI D19",
+   "I2S0 SDO1",
+   "I2C3 SCL",
+   "I2S1 SDO1",
+   "SYS RIO023",
+   "PROC RIO023",
+   "PIO23",
+   ""
+  ],
+  "24": [
+   "SD0 DAT0",
+   "DPI D20",
+   "I2S0 SDI2",
+   "",
+   "I2S1 SDI2",
+   "SYS RIO024",
+   "PROC RIO024",
+   "PIO24",
+   "SPI2 CE1"
+  ],
+  "25": [
+   "SD0 DAT1",
+   "DPI D21",
+   "I2S0 SDO2",
+   "MIC CLK",
+   "I2S1 SDO2",
+   "SYS RIO025",
+   "PROC RIO025",
+   "PIO25",
+   "SPI3 CE1"
+  ],
+  "26": [
+   "SD0 DAT2",
+   "DPI D22",
+   "I2S0 SDI3",
+   "MIC DAT0",
+   "I2S1 SDI3",
+   "SYS RIO026",
+   "PROC RIO026",
+   "PIO26",
+   "SPI5 CE1"
+  ],
+  "27": [
+   "SD0 DAT3",
+   "DPI D23",
+   "I2S0 SDO3",
+   "MIC DAT1",
+   "I2S1 SDO3",
+   "SYS RIO027",
+   "PROC RIO027",
+   "PIO27",
+   "SPI1 CE1"
+  ]
+ },
+ "interfaces": [
+  {
+   "id": "gpio",
+   "name": "GPIO",
+   "title": "GPIO: General Purpose Input/Output",
+   "pins": {
+    "27": {
+     "label": "GPIO 0",
+     "main": true
+    },
+    "28": {
+     "label": "GPIO 1",
+     "main": true
+    },
+    "3": {
+     "label": "GPIO 2",
+     "main": true
+    },
+    "5": {
+     "label": "GPIO 3",
+     "main": true
+    },
+    "7": {
+     "label": "GPIO 4",
+     "main": true
+    },
+    "29": {
+     "label": "GPIO 5",
+     "main": true
+    },
+    "31": {
+     "label": "GPIO 6",
+     "main": true
+    },
+    "26": {
+     "label": "GPIO 7",
+     "main": true
+    },
+    "24": {
+     "label": "GPIO 8",
+     "main": true
+    },
+    "21": {
+     "label": "GPIO 9",
+     "main": true
+    },
+    "19": {
+     "label": "GPIO 10",
+     "main": true
+    },
+    "23": {
+     "label": "GPIO 11",
+     "main": true
+    },
+    "32": {
+     "label": "GPIO 12",
+     "main": true
+    },
+    "33": {
+     "label": "GPIO 13",
+     "main": true
+    },
+    "8": {
+     "label": "GPIO 14",
+     "main": true
+    },
+    "10": {
+     "label": "GPIO 15",
+     "main": true
+    },
+    "36": {
+     "label": "GPIO 16",
+     "main": true
+    },
+    "11": {
+     "label": "GPIO 17",
+     "main": true
+    },
+    "12": {
+     "label": "GPIO 18",
+     "main": true
+    },
+    "35": {
+     "label": "GPIO 19",
+     "main": true
+    },
+    "38": {
+     "label": "GPIO 20",
+     "main": true
+    },
+    "40": {
+     "label": "GPIO 21",
+     "main": true
+    },
+    "15": {
+     "label": "GPIO 22",
+     "main": true
+    },
+    "16": {
+     "label": "GPIO 23",
+     "main": true
+    },
+    "18": {
+     "label": "GPIO 24",
+     "main": true
+    },
+    "22": {
+     "label": "GPIO 25",
+     "main": true
+    },
+    "37": {
+     "label": "GPIO 26",
+     "main": true
+    },
+    "13": {
+     "label": "GPIO 27",
+     "main": true
+    }
+   },
+   "text": "A GPIO pin can be read as an input, driven as an output, or switched to one of its alternate functions, connecting it to a peripheral inside the chip. On a Raspberry Pi 5 the header's 28 GPIO pins belong to the RP1 chip.\n\n## Logic levels\n\nGPIO pins are 3.3v. They are not 5v tolerant and could be damaged by 5v devices: use a level shifter, a divider or an optocoupler.\n\n## Current\n\nTreat an output as a control signal: anything that needs powering should be fed from the 3v3 or 5v pins, or from its own supply. [Raspberry Pi's GPIO documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio) gives no per-pin or total limit for the header.\n\n## Pull-ups and pull-downs\n\nEvery GPIO pin has an internal pull-up and pull-down resistor that can be enabled in software. GPIO 2 and GPIO 3 are the exception, with fixed 1.8 kΩ pull-ups fitted to the board.\n\nAt power-on, GPIO 0 to GPIO 8 are pulled up and GPIO 9 to GPIO 27 are pulled down. A relay board that switches on when its input is low can click on while the Pi starts if it's on a pulled-down pin, so CoilGate suggests GPIO 5 to 8 for those.\n\n## Alternate functions\n\nPi 5's RP1 has nine alternate functions per pin, F0 to F8. Select a pin to see all of them. Overlays written before Pi 5 still work; the RP1 driver translates the old function numbers to the closest matching RP1 function.\n\n## Checking a pin\n\n`pinctrl get 17` shows what GPIO 17 is doing right now: input or output (`ip`, `op`), its pull (`pu`, `pd`) and level (`hi`, `lo`). Leave the pins CoilGate uses out of `gpio=` lines in /boot/firmware/config.txt, so the two don't fight over them."
+  },
+  {
+   "id": "3v3",
+   "name": "3v3 Power",
+   "title": "3v3 Power",
+   "pins": {
+    "1": {
+     "label": "3v3 Power",
+     "main": true
+    },
+    "17": {
+     "label": "3v3 Power",
+     "main": true
+    }
+   },
+   "text": "All Raspberry Pi models since the B+ can provide up to 500mA on the 3v3 pins, thanks to a switching regulator. In some cases it may be possible to draw more but, due to lack of documentation and testing on the actual limits, 500mA is given as a rule of thumb.\n\nThe 5v supply coupled with a 3v3 regulator is recommended for powering 3.3v projects.\n\nCoilGate's relay wiring takes the relay board's input-side VCC from pin 1, so a 5v relay board never puts more than 3.3v on a GPIO pin."
+  },
+  {
+   "id": "5v",
+   "name": "5v Power",
+   "title": "5v Power",
+   "pins": {
+    "2": {
+     "label": "5v Power",
+     "main": true
+    },
+    "4": {
+     "label": "5v Power",
+     "main": true
+    }
+   },
+   "text": "The 5v power pins are connected directly to the Pi's power input and will capably provide the full supply current of your power adaptor, minus that used by the Pi itself.\n\nHow much that leaves varies with the adaptor and what else is plugged in. On a Pi 5, use the official 27W (5v, 5A) supply if anything is powered from these pins. Devices that require a high current, such as LED panels, long LED strips, motors or a bank of relays, should use an external power supply."
+  },
+  {
+   "id": "ground",
+   "name": "Ground",
+   "title": "Ground",
+   "pins": {
+    "6": {
+     "label": "Ground",
+     "main": true
+    },
+    "9": {
+     "label": "Ground",
+     "main": true
+    },
+    "14": {
+     "label": "Ground",
+     "main": true
+    },
+    "20": {
+     "label": "Ground",
+     "main": true
+    },
+    "25": {
+     "label": "Ground",
+     "main": true
+    },
+    "30": {
+     "label": "Ground",
+     "main": true
+    },
+    "34": {
+     "label": "Ground",
+     "main": true
+    },
+    "39": {
+     "label": "Ground",
+     "main": true
+    }
+   },
+   "text": "The Ground pins on the Raspberry Pi are all electrically connected, so it doesn't matter which one you use if you're wiring up a voltage supply.\n\nGenerally the one that's most convenient or closest to the rest of your connections is tidier and easier, or alternatively the one closest to the supply pin that you use.\n\nFor example, it's a good idea to use Physical Pin 17 for 3v3 and Physical Pin 25 for ground when using the SPI connections, as these are right next to the important pins for SPI0."
+  },
+  {
+   "id": "i2c",
+   "name": "I²C",
+   "title": "I²C: Inter-Integrated Circuit",
+   "pins": {
+    "27": {
+     "label": "I2C0 SDA",
+     "main": false
+    },
+    "28": {
+     "label": "I2C0 SCL",
+     "main": false
+    },
+    "3": {
+     "label": "I2C1 SDA",
+     "main": true
+    },
+    "5": {
+     "label": "I2C1 SCL",
+     "main": true
+    },
+    "7": {
+     "label": "I2C2 SDA",
+     "main": false
+    },
+    "29": {
+     "label": "I2C2 SCL",
+     "main": false
+    },
+    "31": {
+     "label": "I2C3 SDA",
+     "main": false
+    },
+    "26": {
+     "label": "I2C3 SCL",
+     "main": false
+    },
+    "24": {
+     "label": "I2C0 SDA",
+     "main": false
+    },
+    "21": {
+     "label": "I2C0 SCL",
+     "main": false
+    },
+    "19": {
+     "label": "I2C1 SDA",
+     "main": false
+    },
+    "23": {
+     "label": "I2C1 SCL",
+     "main": false
+    },
+    "32": {
+     "label": "I2C2 SDA",
+     "main": false
+    },
+    "33": {
+     "label": "I2C2 SCL",
+     "main": false
+    },
+    "8": {
+     "label": "I2C3 SDA",
+     "main": false
+    },
+    "10": {
+     "label": "I2C3 SCL",
+     "main": false
+    },
+    "15": {
+     "label": "I2C3 SDA",
+     "main": false
+    },
+    "16": {
+     "label": "I2C3 SCL",
+     "main": false
+    }
+   },
+   "text": "GPIO 2 and GPIO 3, the Raspberry Pi's I2C1 pins, allow for two-wire communication with a variety of external sensors and devices.\n\nThe I2C pins include a fixed 1.8 kΩ pull-up resistor to 3.3v. They are not suitable for use as general purpose IO where a pull-up might interfere.\n\nI2C is a multi-drop bus: multiple devices can be connected to these same two pins. Each device has its own unique I2C address.\n\nI2C is turned off on a stock Raspberry Pi OS image. Enable it with `raspi-config`, or by adding `dtparam=i2c_arm=on` to `/boot/firmware/config.txt`. Once it's on, `i2cdetect -y 1` from the `i2c-tools` package lists the addresses responding on the bus. CoilGate's BME280 sensors use this bus.\n\nGPIO 0 and GPIO 1 (I2C0) can be used as an alternate I2C bus, but are typically used by the system to read the HAT EEPROM.\n\n## More than one bus\n\ni2c1 is the only bus available without an overlay. Pi 5 has several more, each on a pair of low-numbered GPIO pins:\n\n| Pins | Pi 5 | Notes |\n| --- | --- | --- |\n| GPIO 0 and GPIO 1 | i2c0 | Usually left alone for the HAT EEPROM |\n| GPIO 2 and GPIO 3 | i2c1 | The usual bus |\n| GPIO 4 and GPIO 5 | i2c2 | |\n| GPIO 6 and GPIO 7 | i2c3 | |\n| GPIO 8 and GPIO 9 | i2c0 | |\n| GPIO 10 and GPIO 11 | i2c1 | |\n| GPIO 12 and GPIO 13 | i2c2 | |\n| GPIO 14 and GPIO 15 | i2c3 | Also the UART pins |\n| GPIO 22 and GPIO 23 | i2c3 | |\n\nEach bus is enabled with a device tree overlay, and the pin pair is chosen with a parameter. On Pi 5 the overlays take a `-pi5` suffix: `dtoverlay=i2c3-pi5,pins_6_7`.\n\nOnly GPIO 2 and GPIO 3 have pull-up resistors fitted. Every other pair needs your own, typically 4.7 kΩ to 3.3v."
+  },
+  {
+   "id": "spi",
+   "name": "SPI",
+   "title": "SPI: Serial Peripheral Interface",
+   "pins": {
+    "27": {
+     "label": "SPI0 SIO3 (quad) / SPI2 CE0",
+     "main": false
+    },
+    "28": {
+     "label": "SPI0 SIO2 (quad) / SPI2 MISO (SIO1)",
+     "main": false
+    },
+    "3": {
+     "label": "SPI0 CE3 / SPI2 MOSI (SIO0)",
+     "main": false
+    },
+    "5": {
+     "label": "SPI0 CE2 / SPI2 SCLK",
+     "main": false
+    },
+    "7": {
+     "label": "SPI3 CE0",
+     "main": false
+    },
+    "29": {
+     "label": "SPI3 MISO (SIO1)",
+     "main": false
+    },
+    "31": {
+     "label": "SPI3 MOSI (SIO0)",
+     "main": false
+    },
+    "26": {
+     "label": "SPI0 CE1 / SPI3 SCLK",
+     "main": true
+    },
+    "24": {
+     "label": "SPI0 CE0 / SPI4 CE0",
+     "main": true
+    },
+    "21": {
+     "label": "SPI0 MISO / SPI4 MOSI (SIO0)",
+     "main": true
+    },
+    "19": {
+     "label": "SPI0 MOSI / SPI4 MISO (SIO1)",
+     "main": true
+    },
+    "23": {
+     "label": "SPI0 SCLK / SPI4 SCLK",
+     "main": true
+    },
+    "32": {
+     "label": "SPI5 CE0",
+     "main": false
+    },
+    "33": {
+     "label": "SPI5 MISO (SIO1)",
+     "main": false
+    },
+    "8": {
+     "label": "SPI5 MOSI (SIO0)",
+     "main": false
+    },
+    "10": {
+     "label": "SPI5 SCLK",
+     "main": false
+    },
+    "36": {
+     "label": "SPI1 CE2",
+     "main": false
+    },
+    "11": {
+     "label": "SPI1 CE1",
+     "main": false
+    },
+    "12": {
+     "label": "SPI1 CE0",
+     "main": false
+    },
+    "35": {
+     "label": "SPI1 MISO",
+     "main": false
+    },
+    "38": {
+     "label": "SPI1 MOSI",
+     "main": false
+    },
+    "40": {
+     "label": "SPI1 SCLK",
+     "main": false
+    },
+    "18": {
+     "label": "SPI2 CE1",
+     "main": false
+    },
+    "22": {
+     "label": "SPI3 CE1",
+     "main": false
+    },
+    "37": {
+     "label": "SPI5 CE1",
+     "main": false
+    },
+    "13": {
+     "label": "SPI1 CE1",
+     "main": false
+    }
+   },
+   "text": "* SPI0 pins are GPIO 7, GPIO 8, GPIO 9, GPIO 10 and GPIO 11\n* SPI1 pins are GPIO 16, GPIO 17, GPIO 18, GPIO 19, GPIO 20 and GPIO 21\n\nKnown as the four-wire serial bus, SPI lets you attach multiple compatible devices to a single set of pins by assigning them different chip-select pins. To talk to an SPI device, you assert its corresponding chip-select pin.\n\nSPI0 is off by default. Enable it with `raspi-config` or `dtparam=spi=on`; it then uses chip selects CE0 on GPIO 8 and CE1 on GPIO 7. You can enable SPI1 with a device tree overlay, for example `dtoverlay=spi1-3cs`.\n\n## More than two buses\n\nPi 5 has extra SPI controllers on the low-numbered GPIO pins. Enable one with the matching overlay, in a `1cs` or `2cs` form for the number of chip selects you need, such as `dtoverlay=spi3-1cs-pi5`. The `cs0_pin` parameter moves the chip select if the default clashes with something.\n\nRaspberry Pi 5 documentation calls MISO and MOSI SIO1 and SIO0, since RP1's SPI blocks can run in modes where the data lines change direction."
+  },
+  {
+   "id": "uart",
+   "name": "UART",
+   "title": "UART: Universal Asynchronous Receiver/Transmitter",
+   "pins": {
+    "27": {
+     "label": "UART1 TXD",
+     "main": false
+    },
+    "28": {
+     "label": "UART1 RXD",
+     "main": false
+    },
+    "3": {
+     "label": "UART1 CTS",
+     "main": false
+    },
+    "5": {
+     "label": "UART1 RTS",
+     "main": false
+    },
+    "7": {
+     "label": "UART2 TXD",
+     "main": false
+    },
+    "29": {
+     "label": "UART2 RXD",
+     "main": false
+    },
+    "31": {
+     "label": "UART2 CTS",
+     "main": false
+    },
+    "26": {
+     "label": "UART2 RTS",
+     "main": false
+    },
+    "24": {
+     "label": "UART3 TXD",
+     "main": false
+    },
+    "21": {
+     "label": "UART3 RXD",
+     "main": false
+    },
+    "19": {
+     "label": "UART3 CTS",
+     "main": false
+    },
+    "23": {
+     "label": "UART3 RTS",
+     "main": false
+    },
+    "32": {
+     "label": "UART4 TXD",
+     "main": false
+    },
+    "33": {
+     "label": "UART4 RXD",
+     "main": false
+    },
+    "8": {
+     "label": "UART4 CTS / UART0 TXD",
+     "main": true
+    },
+    "10": {
+     "label": "UART4 RTS / UART0 RXD",
+     "main": true
+    },
+    "36": {
+     "label": "UART0 CTS",
+     "main": false
+    },
+    "11": {
+     "label": "UART0 RTS",
+     "main": false
+    }
+   },
+   "text": "UART is an asynchronous serial communication protocol: it takes bytes of data and transmits the individual bits one after another.\n\n* TXD: Transmit\n* RXD: Receive\n* CTS: Clear to send\n* RTS: Request to send\n\nThe UART pins are 3.3v and are not level shifted. Wire them straight to a 5v device and you might conjure up some magic blue smoke, so use a level shifter or a USB to 3.3v serial adaptor.\n\nOn Pi 5, the primary UART is the dedicated three-pin debug header, not GPIO 14 and GPIO 15. Set `enable_uart=1` in `/boot/firmware/config.txt` to bring the console back to the header pins.\n\nPi 5 exposes four more UARTs on the header:\n\n| Pi 5 | TXD | RXD | CTS | RTS |\n| --- | --- | --- | --- | --- |\n| uart1 | GPIO 0 | GPIO 1 | GPIO 2 | GPIO 3 |\n| uart2 | GPIO 4 | GPIO 5 | GPIO 6 | GPIO 7 |\n| uart3 | GPIO 8 | GPIO 9 | GPIO 10 | GPIO 11 |\n| uart4 | GPIO 12 | GPIO 13 | GPIO 14 | GPIO 15 |\n\nThese are enabled with a device tree overlay, such as `dtoverlay=uart1-pi5`, and the CTS/RTS pins with an additional `ctsrts` parameter."
+  },
+  {
+   "id": "pwm",
+   "name": "PWM",
+   "title": "PWM: Pulse-width Modulation",
+   "pins": {
+    "32": {
+     "label": "PWM0 CHAN0",
+     "main": true
+    },
+    "33": {
+     "label": "PWM0 CHAN1",
+     "main": true
+    },
+    "8": {
+     "label": "PWM0 CHAN2",
+     "main": false
+    },
+    "10": {
+     "label": "PWM0 CHAN3",
+     "main": false
+    },
+    "12": {
+     "label": "PWM0 CHAN2",
+     "main": true
+    },
+    "35": {
+     "label": "PWM0 CHAN3",
+     "main": true
+    }
+   },
+   "text": "Pulse-width modulation creates a rectangular wave signal that is commonly used for dimming or blinking an LED, controlling a display backlight or the speed of a motor (e.g. a fan). The outputs are only useful as control signals, not to actually drive a motor.\n\nOn Pi 5 the RP1 PWM block has four channels: CHAN0 on GPIO 12, CHAN1 on GPIO 13, CHAN2 on GPIO 14 or GPIO 18, and CHAN3 on GPIO 15 or GPIO 19.\n\n## Enable via config.txt\n\n`dtoverlay=pwm` sets up one channel and `dtoverlay=pwm-2chan` sets up two, on GPIO 18 and GPIO 19 by default. The `pin` and `func` parameters move a channel to another of its pins:\n\n```\ndtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4\n```\n\n`func` is the function number for the pin you pick: 4 for GPIO 12 and GPIO 13, 2 for GPIO 18 and GPIO 19. These are the numbers the older models use, and they still work on Pi 5, where the RP1 GPIO driver maps each one to the closest matching RP1 function.\n\nGPIO 18 and GPIO 19 are also the I2S clock and frame select, which makes GPIO 12 and GPIO 13 the pair to use alongside an I2S audio HAT. Pi 5 also has `dtoverlay=pwm-pio`, which drives a PWM signal from PIO on any GPIO pin rather than from the PWM block."
+  },
+  {
+   "id": "pcm",
+   "name": "PCM / I²S",
+   "title": "PCM / I²S: Digital audio",
+   "pins": {
+    "12": {
+     "label": "I2S0 SCLK",
+     "main": true
+    },
+    "35": {
+     "label": "I2S0 WS",
+     "main": true
+    },
+    "38": {
+     "label": "I2S0 SDI0",
+     "main": true
+    },
+    "40": {
+     "label": "I2S0 SDO0",
+     "main": true
+    },
+    "15": {
+     "label": "I2S0 SDI1",
+     "main": false
+    },
+    "16": {
+     "label": "I2S0 SDO1",
+     "main": false
+    },
+    "18": {
+     "label": "I2S0 SDI2",
+     "main": false
+    },
+    "22": {
+     "label": "I2S0 SDO2",
+     "main": false
+    },
+    "37": {
+     "label": "I2S0 SDI3",
+     "main": false
+    },
+    "13": {
+     "label": "I2S0 SDO3",
+     "main": false
+    }
+   },
+   "text": "PCM (Pulse-code Modulation) is a digital representation of sampled analog. On the Raspberry Pi it's a form of digital audio which can be understood by a DAC for high quality sound.\n\nThese are the pins you'll want for I2S (Inter-IC Sound), which is the signalling most audio HATs and DACs use and the name they usually give it: clock on GPIO 18, frame select on GPIO 19, data in on GPIO 20 and data out on GPIO 21. Pi 5's RP1 adds extra data lines on GPIO 22 to GPIO 27.\n\nI2S is off by default. `dtparam=i2s=on` in /boot/firmware/config.txt enables it, though most audio HATs ship an overlay that does this as part of their own setup."
+  },
+  {
+   "id": "gpclk",
+   "name": "GPCLK",
+   "title": "GPCLK: General Purpose Clock",
+   "pins": {
+    "7": {
+     "label": "GPCLK0",
+     "main": true
+    },
+    "29": {
+     "label": "GPCLK1",
+     "main": true
+    },
+    "31": {
+     "label": "GPCLK2",
+     "main": true
+    },
+    "12": {
+     "label": "GPCLK1",
+     "main": false
+    },
+    "38": {
+     "label": "GPCLK0",
+     "main": false
+    },
+    "40": {
+     "label": "GPCLK1",
+     "main": false
+    }
+   },
+   "text": "General Purpose Clock pins can be set up to output a fixed frequency without any ongoing software control.\n\nOn Pi 5, GPCLK0 is available on GPIO 4 or GPIO 20, GPCLK1 on GPIO 5, GPIO 18 or GPIO 21, and GPCLK2 on GPIO 6. RP1's clock sources differ from the older models', so frequency tables written for Pi 4 and earlier don't apply."
+  },
+  {
+   "id": "1wire",
+   "name": "1-Wire",
+   "title": "1-Wire",
+   "pins": {
+    "7": {
+     "label": "1-Wire data (default pin)",
+     "main": true
+    }
+   },
+   "text": "One-wire is a single-wire communication bus typically used to connect sensors to the Pi, such as the DS18B20 temperature probes CoilGate reads.\n\nThe Raspberry Pi supports one-wire on any GPIO pin, but the default is GPIO 4.\n\n## Enable via config.txt\n\nAdd the overlay to /boot/firmware/config.txt and reboot, or let `raspi-config` do it for you:\n\n```\ndtoverlay=w1-gpio\n```\n\nAny other pin needs the `gpiopin` parameter, for example `dtoverlay=w1-gpio,gpiopin=17`. Devices found on the bus appear in `/sys/bus/w1/devices/`.\n\nUsing w1-gpio on the Raspberry Pi typically needs a 4.7 kΩ pull-up resistor connected between the GPIO pin and a 3.3v supply (e.g. header pin 1 or 17)."
+  },
+  {
+   "id": "sdio",
+   "name": "SDIO",
+   "title": "SDIO: SD card interface",
+   "pins": {
+    "15": {
+     "label": "SD0 CLK",
+     "main": true
+    },
+    "16": {
+     "label": "SD0 CMD",
+     "main": true
+    },
+    "18": {
+     "label": "SD0 DAT0",
+     "main": true
+    },
+    "22": {
+     "label": "SD0 DAT1",
+     "main": true
+    },
+    "37": {
+     "label": "SD0 DAT2",
+     "main": true
+    },
+    "13": {
+     "label": "SD0 DAT3",
+     "main": true
+    }
+   },
+   "text": "SDIO is the SD host interface. Its signals are normally used for the microSD slot, but a second four-bit SD interface can be brought out on GPIO 22 to GPIO 27.\n\nPi 5 has its own overlay for this, `dtoverlay=sdio-pi5`, which uses these six pins."
+  },
+  {
+   "id": "dpi",
+   "name": "DPI",
+   "title": "DPI: Display Parallel Interface",
+   "pins": {
+    "27": {
+     "label": "DPI PCLK",
+     "main": true
+    },
+    "28": {
+     "label": "DPI DE",
+     "main": true
+    },
+    "3": {
+     "label": "DPI VSYNC",
+     "main": true
+    },
+    "5": {
+     "label": "DPI HSYNC",
+     "main": true
+    },
+    "7": {
+     "label": "DPI D0",
+     "main": true
+    },
+    "29": {
+     "label": "DPI D1",
+     "main": true
+    },
+    "31": {
+     "label": "DPI D2",
+     "main": true
+    },
+    "26": {
+     "label": "DPI D3",
+     "main": true
+    },
+    "24": {
+     "label": "DPI D4",
+     "main": true
+    },
+    "21": {
+     "label": "DPI D5",
+     "main": true
+    },
+    "19": {
+     "label": "DPI D6",
+     "main": true
+    },
+    "23": {
+     "label": "DPI D7",
+     "main": true
+    },
+    "32": {
+     "label": "DPI D8",
+     "main": true
+    },
+    "33": {
+     "label": "DPI D9",
+     "main": true
+    },
+    "8": {
+     "label": "DPI D10",
+     "main": true
+    },
+    "10": {
+     "label": "DPI D11",
+     "main": true
+    },
+    "36": {
+     "label": "DPI D12",
+     "main": true
+    },
+    "11": {
+     "label": "DPI D13",
+     "main": true
+    },
+    "12": {
+     "label": "DPI D14",
+     "main": true
+    },
+    "35": {
+     "label": "DPI D15",
+     "main": true
+    },
+    "38": {
+     "label": "DPI D16",
+     "main": true
+    },
+    "40": {
+     "label": "DPI D17",
+     "main": true
+    },
+    "15": {
+     "label": "DPI D18",
+     "main": true
+    },
+    "16": {
+     "label": "DPI D19",
+     "main": true
+    },
+    "18": {
+     "label": "DPI D20",
+     "main": true
+    },
+    "22": {
+     "label": "DPI D21",
+     "main": true
+    },
+    "37": {
+     "label": "DPI D22",
+     "main": true
+    },
+    "13": {
+     "label": "DPI D23",
+     "main": true
+    }
+   },
+   "text": "DPI drives a parallel RGB display directly from the GPIO pins: a pixel clock, data enable, horizontal and vertical sync, and up to 24 data bits. In its widest mode it uses every GPIO pin on the header, leaving nothing else free.\n\nIt's enabled with a display overlay in /boot/firmware/config.txt. See [Raspberry Pi's DPI documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#display-parallel-interface-dpi) for the modes and overlays."
+  },
+  {
+   "id": "pio",
+   "name": "PIO",
+   "title": "PIO: Programmable I/O (Pi 5)",
+   "pins": {
+    "27": {
+     "label": "PIO0",
+     "main": true
+    },
+    "28": {
+     "label": "PIO1",
+     "main": true
+    },
+    "3": {
+     "label": "PIO2",
+     "main": true
+    },
+    "5": {
+     "label": "PIO3",
+     "main": true
+    },
+    "7": {
+     "label": "PIO4",
+     "main": true
+    },
+    "29": {
+     "label": "PIO5",
+     "main": true
+    },
+    "31": {
+     "label": "PIO6",
+     "main": true
+    },
+    "26": {
+     "label": "PIO7",
+     "main": true
+    },
+    "24": {
+     "label": "PIO8",
+     "main": true
+    },
+    "21": {
+     "label": "PIO9",
+     "main": true
+    },
+    "19": {
+     "label": "PIO10",
+     "main": true
+    },
+    "23": {
+     "label": "PIO11",
+     "main": true
+    },
+    "32": {
+     "label": "PIO12",
+     "main": true
+    },
+    "33": {
+     "label": "PIO13",
+     "main": true
+    },
+    "8": {
+     "label": "PIO14",
+     "main": true
+    },
+    "10": {
+     "label": "PIO15",
+     "main": true
+    },
+    "36": {
+     "label": "PIO16",
+     "main": true
+    },
+    "11": {
+     "label": "PIO17",
+     "main": true
+    },
+    "12": {
+     "label": "PIO18",
+     "main": true
+    },
+    "35": {
+     "label": "PIO19",
+     "main": true
+    },
+    "38": {
+     "label": "PIO20",
+     "main": true
+    },
+    "40": {
+     "label": "PIO21",
+     "main": true
+    },
+    "15": {
+     "label": "PIO22",
+     "main": true
+    },
+    "16": {
+     "label": "PIO23",
+     "main": true
+    },
+    "18": {
+     "label": "PIO24",
+     "main": true
+    },
+    "22": {
+     "label": "PIO25",
+     "main": true
+    },
+    "37": {
+     "label": "PIO26",
+     "main": true
+    },
+    "13": {
+     "label": "PIO27",
+     "main": true
+    }
+   },
+   "text": "New on Pi 5: RP1 has a PIO block, like the one in the Raspberry Pi Pico, that runs small programs to generate or read signals on any GPIO pin. Overlays such as `pwm-pio` use it, and it can implement interfaces the other blocks don't have."
+  },
+  {
+   "id": "jtag",
+   "name": "JTAG / SWD",
+   "title": "JTAG and SWD",
+   "pins": {
+    "23": {
+     "label": "TCK / SWCLK",
+     "main": true
+    },
+    "24": {
+     "label": "TMS / SWDIO",
+     "main": true
+    },
+    "19": {
+     "label": "TDI",
+     "main": false
+    },
+    "21": {
+     "label": "TDO",
+     "main": false
+    },
+    "26": {
+     "label": "TRST",
+     "main": false
+    },
+    "18": {
+     "label": "SRST",
+     "main": false
+    }
+   },
+   "text": "Pi 5's 40-pin header doesn't carry a JTAG interface of its own; debugging the Pi 5 itself uses its dedicated debug connector.\n\nA Pi can be the debugger rather than the target. OpenOCD bit-bangs JTAG or SWD over the GPIO pins highlighted here:\n\n| Signal | GPIO | Header |\n| --- | --- | --- |\n| TCK / SWCLK | GPIO 11 | Physical Pin 23 |\n| TMS / SWDIO | GPIO 8 | Physical Pin 24 |\n| TDI | GPIO 10 | Physical Pin 19 |\n| TDO | GPIO 9 | Physical Pin 21 |\n| TRST | GPIO 7 | Physical Pin 26 |\n| SRST | GPIO 24 | Physical Pin 18 |\n\nSWD needs only SWCLK and SWDIO. TRST and SRST are optional. You also need a ground connection, and Physical Pin 20 is conveniently in amongst the signals. These are the SPI0 pins, so SPI0 and OpenOCD cannot both be in use.\n\nOn Pi 5, pass `interface/raspberrypi5-gpiod.cfg` to OpenOCD. Pi 5 needs its own file because the GPIO pins hang off the RP1 chip across PCIe, out of reach of the native bit-bang driver. It falls back to the generic Linux gpiod driver, which is slower and has no adjustable clock speed."
+  }
+ ]
+}

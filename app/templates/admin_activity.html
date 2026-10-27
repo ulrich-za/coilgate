@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block title %}Activity{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<nav class="filters" aria-label="Filter activity">
+  {% for key, label in filters.items() %}
+    <a href="{{ url_for('main.admin_activity', show=key) }}" {% if show == key %}aria-current="true"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>
+
+<form method="get" action="{{ url_for('main.admin_activity_download') }}" class="download-form" aria-labelledby="download-heading">
+  <input type="hidden" name="show" value="{{ show }}">
+  <h2 id="download-heading" class="download-title">Download <span class="muted">{{ filters[show] }}</span></h2>
+  <div class="download-dates">
+    <div class="date-field">
+      <label for="dl-start">From</label>
+      <input id="dl-start" name="start" type="date" value="{{ week_ago }}" min="{{ earliest }}" max="{{ today }}" required>
+    </div>
+    <div class="date-field">
+      <label for="dl-end">To</label>
+      <input id="dl-end" name="end" type="date" value="{{ today }}" min="{{ earliest }}" max="{{ today }}" required>
+    </div>
+  </div>
+  <div class="download-buttons">
+    <button type="submit" name="format" value="csv" class="button button-secondary">CSV</button>
+    <button type="submit" name="format" value="pdf" class="button button-secondary">PDF</button>
+  </div>
+</form>
+
+{% if rows %}
+<table class="data">
+  {% if show == "signin" %}
+  <thead><tr><th scope="col">When</th><th scope="col">Event</th><th scope="col">Username</th><th scope="col">Result</th><th scope="col">IP address</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td data-label="When" class="nowrap">{{ r.ts | when }}</td>
+      <td data-label="Event">{{ signin_events.get(r.event, r.event) }}</td>
+      <td data-label="Username">{{ r.username or "" }}</td>
+      <td data-label="Result"><span class="result {{ 'ok' if r.success else 'fail' }}">{{ "Succeeded" if r.success else "Failed" }}</span></td>
+      <td {% if r.ip %}data-label="IP address"{% endif %} class="num{% if not r.ip %} blank{% endif %}">{{ r.ip or "" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  {% else %}
+  <thead><tr><th scope="col">When</th><th scope="col">Area</th><th scope="col">What</th><th scope="col">Change</th><th scope="col">By</th><th scope="col">IP address</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td data-label="When" class="nowrap">{{ r.ts | when }}</td>
+      <td data-label="Area">{{ categories.get(r.category, r.category) }}</td>
+      <td data-label="What">{{ r.target or "" }}</td>
+      <td data-label="Change">
+        {{ r.detail if r.category == "input" else describe(r) }}
+        {% if r.detail and r.category not in ("input", "control", "automation") %}<br><span class="muted detail">{{ r.detail }}</span>{% endif %}
+      </td>
+      <td data-label="By">{% if r.category == "automation" %}{{ r.detail or "Rule" }}{% else %}{{ r.username or ("Input" if r.category == "input" else "") }}{% endif %}</td>
+      <td {% if r.ip %}data-label="IP address"{% endif %} class="num{% if not r.ip %} blank{% endif %}">{{ r.ip or "" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  {% endif %}
+</table>
+<p class="muted admin-note">Showing the latest 200 entries. History is kept for {{ cfg.event_retention_days }} days.</p>
+{% else %}
+<p class="muted">Nothing recorded here yet.</p>
+{% endif %}
+{% endblock %}

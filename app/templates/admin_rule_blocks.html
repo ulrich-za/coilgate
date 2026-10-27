@@ -1,0 +1,184 @@
+{% extends "layout.html" %}
+{% block title %}{{ "Edit rule" if rule_id else "Add a rule" }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+{# One piece per thing. Once placed, a small menu in the chip says what
+   about it: which state, which action. options: [[value, words, undoable]]. #}
+{% macro piece(slot, kind, id, label, options=none, trigger=none, unit=none, meta=none) -%}
+<li><button type="button" class="piece piece-{{ slot }}" data-slot="{{ slot }}" data-kind="{{ kind }}" data-id="{{ id }}"
+        {%- if trigger %} data-trigger="{{ trigger }}"{% endif %}
+        {%- if unit %} data-unit="{{ unit }}"{% endif %}
+        {%- if options %} data-options='{{ options | tojson }}'{% endif %}>
+  <span class="piece-label">{{ label }}</span>{% if meta %}<span class="piece-meta">{{ meta }}</span>{% endif %}
+</button></li>
+{%- endmacro %}
+
+<div class="blocks-page">
+  <p class="back"><a href="{{ url_for('main.admin_rules') }}">Back to rules</a></p>
+  <div class="form-title-row">
+    <h2 class="form-title">{{ "Edit rule" if rule_id else "Add a rule" }}</h2>
+    {% include "_builder_switch.html" %}
+  </div>
+  <p class="lede">Drag pieces into the rule, or tap one to put it in place, then pick the details in the piece (such as “is Pressed” or “toggle”). Dropping a piece on a filled spot swaps it.</p>
+
+  <p class="notice" data-needs-js>The drag-and-drop builder needs JavaScript, which is turned off in this browser. <a href="?view=sentence">Use the sentence builder</a> instead.</p>
+
+  {% if errors %}
+  <div class="problems" role="alert">
+    <p>Not saved yet:</p>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <form method="post" class="blocks-form" data-blocks hidden
+        action="{{ url_for('main.admin_rule_edit', rule_id=rule_id) if rule_id else url_for('main.admin_rule_pick') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="view" value="blocks">
+    <input type="hidden" name="trigger_type" value="{{ trigger_type }}" data-field="trigger_type">
+    <input type="hidden" name="source" value="{{ source_value }}" data-field="source">
+    <input type="hidden" name="trigger_schedule" value="{{ v.trigger_schedule_id or '' }}" data-field="trigger_schedule">
+    <input type="hidden" name="target" value="{{ target_value }}" data-field="target">
+    <input type="hidden" name="schedule_id" value="{{ v.schedule_id or c.always_id }}" data-field="schedule_id">
+
+    <div class="blocks-layout">
+      {# ------------------------------------------------ the rule #}
+      <section class="canvas" aria-labelledby="canvas-heading">
+        <h3 id="canvas-heading" class="visually-hidden">Your rule</h3>
+
+        <div class="slot slot-when" data-slot="when">
+          <span class="slot-word">When</span>
+          <div class="slot-body" data-slot-body aria-live="polite">
+            <p class="slot-empty">Drop what starts the rule: an input, a sensor, a schedule or another rule.</p>
+          </div>
+          <div class="slot-extra" data-show-for="sensor" hidden>
+            <label class="visually-hidden" for="comparator">Above or below</label>
+            <select id="comparator" name="comparator">
+              <option value="above" {% if v.comparator != "below" %}selected{% endif %}>is above</option>
+              <option value="below" {% if v.comparator == "below" %}selected{% endif %}>is below</option>
+            </select>
+            <label class="visually-hidden" for="threshold">Value</label>
+            <input id="threshold" name="threshold" type="number" step="any" inputmode="decimal" value="{{ threshold }}" class="num-field" placeholder="26">
+            <span class="unit" data-unit-text></span>
+          </div>
+        </div>
+
+        <div class="slot-row" data-hide-for="schedule">
+          <label class="slot-word slot-word-sub" for="hold_value">for at least</label>
+          <input id="hold_value" name="hold_value" type="number" min="0" step="1" value="{{ hold_value }}" class="num-field">
+          <select name="hold_unit" aria-label="Unit for the waiting time">
+            <option value="s" {% if hold_unit == "s" %}selected{% endif %}>seconds</option>
+            <option value="min" {% if hold_unit == "min" %}selected{% endif %}>minutes</option>
+          </select>
+        </div>
+
+        <div class="slot slot-during" data-slot="during" data-always="{{ c.always_id }}">
+          <span class="slot-word slot-word-sub">during</span>
+          <div class="slot-body" data-slot-body aria-live="polite">
+            <p class="slot-empty">Drop a schedule to limit when the rule may act.</p>
+          </div>
+        </div>
+
+        <div class="slot slot-then" data-slot="then">
+          <span class="slot-word">Then</span>
+          <div class="slot-body" data-slot-body aria-live="polite">
+            <p class="slot-empty">Drop what the rule does: an output or another rule.</p>
+          </div>
+        </div>
+
+        <div class="slot-row slot-undo" data-undo-row>
+          <label class="check"><input type="checkbox" name="undo" {% if v.undo %}checked{% endif %} data-undo-box>
+            <span data-undo-text>and undo it when that's no longer the case</span></label>
+          <span data-show-for="sensor" hidden>
+            <label class="visually-hidden" for="reset_threshold">Value to undo at</label>
+            <input id="reset_threshold" name="reset_threshold" type="number" step="any" inputmode="decimal" value="{{ reset_threshold }}" class="num-field" placeholder="auto">
+          </span>
+        </div>
+        <p class="hint" data-undo-hint hidden>Toggles and pulses can't be undone.</p>
+
+        <p class="blocks-preview" data-preview aria-live="polite"></p>
+      </section>
+
+      {# ------------------------------------------------ pieces #}
+      <section class="palette" aria-labelledby="palette-heading">
+        <div class="palette-head">
+          <h3 id="palette-heading">Pieces</h3>
+          <label class="visually-hidden" for="palette-filter">Find a piece</label>
+          <input id="palette-filter" type="search" placeholder="Find…" autocomplete="off" data-filter>
+        </div>
+
+        <div class="palette-group" data-group>
+          <h4>Starts when</h4>
+          {% if c.inputs %}<p class="palette-sub">Inputs</p>
+          <ul class="pieces">{% for p in c.inputs %}{{ piece("when", "input", p.id, p.name, trigger="input",
+              options=[["active", "is " ~ p.active_text, true], ["inactive", "is " ~ p.inactive_text, true]]) }}{% endfor %}</ul>{% endif %}
+          {% if c.sensors %}<p class="palette-sub">Sensors</p>
+          <ul class="pieces">{% for p in c.sensors %}{{ piece("when", "sensor", p.id, p.name, trigger="sensor",
+              unit=quantities[p.quantity].unit, meta=quantities[p.quantity].unit) }}{% endfor %}</ul>{% endif %}
+          {% if c.trigger_schedules %}<p class="palette-sub">Schedules</p>
+          <ul class="pieces">{% for s in c.trigger_schedules %}{{ piece("when", "schedule", s.id, s.name, trigger="schedule",
+              options=[["", "is active", true]]) }}{% endfor %}</ul>{% endif %}
+          {% if c.rules %}<p class="palette-sub">Other rules</p>
+          <ul class="pieces">{% for r in c.rules.values() %}{{ piece("when", "rule", r.id, r.name, trigger="rule",
+              options=[["active", "is active", true], ["inactive", "is not active", true]]) }}{% endfor %}</ul>{% endif %}
+          {% if not (c.inputs or c.sensors or c.trigger_schedules or c.rules) %}<p class="muted palette-sub">Add an input, sensor or schedule first.</p>{% endif %}
+        </div>
+
+        <div class="palette-group" data-group>
+          <h4>Then</h4>
+          {% if c.outputs %}<p class="palette-sub">Outputs</p>
+          <ul class="pieces">{% for p in c.outputs %}
+            {% if p.mode == "pulse" %}{{ piece("then", "output", p.id, p.name, meta=(p.pulse_seconds | pulse) ~ " pulse",
+                options=[["pulse", "pulse", false]]) }}
+            {% else %}{{ piece("then", "output", p.id, p.name,
+                options=[["on", "turn on", true], ["off", "turn off", true], ["toggle", "toggle", false]]) }}{% endif %}
+          {% endfor %}</ul>{% else %}<p class="muted palette-sub">Add an output first.</p>{% endif %}
+          {% if c.rules %}<p class="palette-sub">Other rules</p>
+          <ul class="pieces">{% for r in c.rules.values() %}{{ piece("then", "rule", "r" ~ r.id, r.name,
+              options=[["rule_on", "switch on", true], ["rule_off", "switch off", true], ["rule_toggle", "toggle", false]]) }}{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="palette-group" data-group>
+          <h4>Only during</h4>
+          <ul class="pieces">{% for s in c.schedules %}{{ piece("during", "schedule", s.id, s.name) }}{% endfor %}</ul>
+        </div>
+      </section>
+    </div>
+
+    <div class="blocks-bar" data-bar>
+      <p class="blocks-bar-text" data-bar-text aria-live="polite"></p>
+      <a href="#canvas-heading" class="button button-secondary blocks-bar-button" data-bar-jump>See rule</a>
+    </div>
+
+    <div class="blocks-footer">
+      <div class="field">
+        <label for="name">Name <span class="muted">(optional)</span></label>
+        <input id="name" name="name" type="text" value="{{ v.name or '' }}" maxlength="80" placeholder="Made from the rule if you leave it empty">
+      </div>
+      <label class="check"><input type="checkbox" name="enabled" {% if v.enabled %}checked{% endif %}> Rule is switched on</label>
+      <p class="problems" data-missing role="alert" hidden></p>
+      <div class="actions">
+        <button type="submit" class="button button-primary">{{ "Save rule" if rule_id else "Add rule" }}</button>
+        <a href="{{ url_for('main.admin_rules') }}" class="button button-secondary">Cancel</a>
+      </div>
+    </div>
+  </form>
+
+  {% if rule_id %}
+  <section class="danger-zone blocks-danger" aria-labelledby="remove-heading">
+    <h2 id="remove-heading">Remove this rule</h2>
+    {% if used_by %}
+    <p class="muted">Other rules use this one, so it can't be removed yet: {{ used_by | join(", ") }}.</p>
+    {% else %}
+    <p class="muted">Outputs stay as they are. Its history stays in the activity log.</p>
+    <form method="post" action="{{ url_for('main.admin_rule_delete', rule_id=rule_id) }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="check"><input type="checkbox" name="confirm" value="yes" required> Yes, remove this rule</label>
+      <div class="actions"><button type="submit" class="button button-danger">Remove</button></div>
+    </form>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='blocks.js') }}" defer></script>{% endblock %}

@@ -1,0 +1,27 @@
+{#- Weekly chart of a schedule's active times. Each day is a small SVG that
+    stretches to the width (one unit per minute); labels are ordinary text so
+    they stay readable at any size. No inline styles, so it works under the
+    strict Content-Security-Policy. -#}
+{% macro chart(schedule, days, label=None) %}
+{% set rows = schedule.chart_rows() %}
+<div class="week-chart" role="img"
+     aria-label="{{ label or ('When ' ~ schedule.name ~ ' is active: ' ~ schedule.summary()) }}">
+  {% for d in range(7) %}
+  <div class="wc-row">
+    <span class="wc-day">{{ days[d] }}</span>
+    <svg class="wc-bar" viewBox="0 0 1440 10" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <rect class="wc-track" x="0" y="0" width="1440" height="10"></rect>
+      {% for start, end in rows[d] %}
+        <rect class="wc-on" x="{{ start }}" y="0" width="{{ end - start }}" height="10"></rect>
+      {% endfor %}
+      {% for h in (6, 12, 18) %}
+        <line class="wc-grid" x1="{{ h * 60 }}" x2="{{ h * 60 }}" y1="0" y2="10" vector-effect="non-scaling-stroke"></line>
+      {% endfor %}
+    </svg>
+  </div>
+  {% endfor %}
+  <div class="wc-hours" aria-hidden="true">
+    <span class="h0">00:00</span><span class="h6">06:00</span><span class="h12">12:00</span><span class="h18">18:00</span><span class="h24">24:00</span>
+  </div>
+</div>
+{% endmacro %}

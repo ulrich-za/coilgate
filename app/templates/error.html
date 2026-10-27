@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block body_class %}gate-page{% endblock %}
+{% block body %}
+<main class="gate">
+  <section class="panel" data-state="denied" aria-labelledby="heading">
+    <span class="lamp" aria-hidden="true"></span>
+    <p class="brand">{{ app_name }}</p>
+    <h1 id="heading">{{ title }}</h1>
+    <p class="status">{{ detail }}</p>
+    <p><a class="button button-secondary" href="{{ url_for('main.index') }}">Go to the start</a></p>
+  </section>
+</main>
+{% endblock %}

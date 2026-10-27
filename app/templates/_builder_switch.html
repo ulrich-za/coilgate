@@ -1,0 +1,6 @@
+{# Sentence or drag-and-drop: two views of the same rule. The choice is remembered. #}
+{% set here = url_for('main.admin_rule_edit', rule_id=rule_id) if rule_id else url_for('main.admin_rule_pick') %}
+<nav class="builder-switch" aria-label="Rule builder">
+  <a href="{{ here }}?view=sentence"{% if not blocks %} aria-current="page"{% endif %}>Sentence</a>
+  <a href="{{ here }}?view=blocks"{% if blocks %} aria-current="page"{% endif %}>Drag and drop</a>
+</nav>

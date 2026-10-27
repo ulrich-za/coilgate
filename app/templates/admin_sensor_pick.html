@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %}Add a sensor{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="narrow">
+  <p class="back"><a href="{{ url_for('main.admin_io') }}">Back to inputs and outputs</a></p>
+  <h2 class="form-title">Add a sensor</h2>
+  <p class="lede">Which kind is it?</p>
+  <ul class="pick-list">
+    {% for key, t in sensor_types.items() %}
+    <li>
+      <a class="pick" href="{{ url_for('main.admin_io_new', sensor_type=key) }}">
+        <strong>{{ t.label }}</strong>
+        <span>{{ t.help }}</span>
+        <span class="muted">Measures {% for q in t.quantities %}{{ quantities[q].label | lower }}{% if not loop.last %}{{ " and " if loop.revindex == 2 else ", " }}{% endif %}{% endfor %}.</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

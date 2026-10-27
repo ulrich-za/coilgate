@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+{% block title %}Your account{% endblock %}
+{% block content %}
+{% set event_names = {
+  "login": "Sign-in",
+  "mfa": "Verification code",
+  "reauth": "Password confirmation",
+  "password_changed": "Password changed",
+  "totp_enabled": "Two-step verification turned on",
+  "totp_disabled": "Two-step verification turned off",
+} %}
+
+<div class="intro">
+  <h1>Your account</h1>
+  <p class="lede">
+    {% if previous_login_at %}
+      Signed in as {{ g.user.username }}, in the {{ access.group_name }} group. Your previous sign-in was {{ previous_login_at | when }} from {{ previous_login_ip }}.
+      If that wasn't you, change your password.
+    {% else %}
+      Signed in as {{ g.user.username }}, in the {{ access.group_name }} group. This is your first sign-in.
+    {% endif %}
+  </p>
+</div>
+
+<div class="columns">
+  <div class="main-col">
+    <section aria-labelledby="sessions-heading">
+      <div class="section-head">
+        <h2 id="sessions-heading">Where you're signed in</h2>
+        {% if sessions | length > 1 %}
+        <form method="post" action="{{ url_for('main.revoke_session') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="session_id" value="others">
+          <button type="submit" class="button button-secondary">Sign out other sessions</button>
+        </form>
+        {% endif %}
+      </div>
+      <table class="data">
+        <thead>
+          <tr><th scope="col">Device</th><th scope="col">IP address</th><th scope="col">Last active</th><th scope="col"><span class="visually-hidden">Action</span></th></tr>
+        </thead>
+        <tbody>
+        {% for s in sessions %}
+          <tr>
+            <td data-label="Device">{{ s.user_agent | device }}</td>
+            <td data-label="IP address" class="num">{{ s.ip }}</td>
+            <td data-label="Last active">{{ s.last_seen_at | ago }}</td>
+            <td class="action">
+              {% if s.token_hash == current_hash %}
+                <span class="tag">This browser</span>
+              {% else %}
+                <form method="post" action="{{ url_for('main.revoke_session') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="session_id" value="{{ s.public_id }}">
+                  <button type="submit" class="link-button">Sign out</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="activity-heading">
+      <h2 id="activity-heading">Recent activity</h2>
+      {% if events %}
+      <table class="data">
+        <thead>
+          <tr><th scope="col">Event</th><th scope="col">When</th><th scope="col">IP address</th><th scope="col">Result</th></tr>
+        </thead>
+        <tbody>
+        {% for e in events %}
+          <tr>
+            <td data-label="Event">{{ event_names.get(e.event, e.event) }}</td>
+            <td data-label="When">{{ e.ts | when }}</td>
+            <td data-label="IP address" class="num">{{ e.ip }}</td>
+            <td data-label="Result">
+              <span class="result {{ 'ok' if e.success else 'fail' }}">{{ "Succeeded" if e.success else "Failed" }}</span>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="muted">Sign-ins and security changes will appear here.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="side-stack">
+  <aside class="side-col" aria-labelledby="security-heading">
+    <h2 id="security-heading">Account security</h2>
+    <dl class="settings">
+      <div>
+        <dt>Two-step verification</dt>
+        <dd>
+          {% if g.user.totp_enabled %}
+            <span class="result ok">On</span>
+            <a href="{{ url_for('main.two_step') }}">Manage</a>
+          {% else %}
+            <span class="result off">Off</span>
+            <a href="{{ url_for('main.two_step') }}">Turn on</a>
+          {% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt>Password</dt>
+        <dd>Changed {{ g.user.password_changed_at | ago }}
+          <a href="{{ url_for('main.change_password') }}">Change</a></dd>
+      </div>
+      {% if access %}
+      <div>
+        <dt>When you can use the controls</dt>
+        <dd>{{ access.name }}: {{ "available now" if access.active else ("available again " ~ access.next if access.next else "not available") }}.</dd>
+      </div>
+      {% endif %}
+      <div>
+        <dt>Session length</dt>
+        <dd>You're signed out after {{ cfg.session_idle_minutes }} minutes of inactivity, and after {{ cfg.session_absolute_hours }} hours regardless.</dd>
+      </div>
+    </dl>
+  </aside>
+
+  <section class="side-col" aria-labelledby="appearance-heading">
+    <h2 id="appearance-heading">Appearance</h2>
+    <form method="post" action="{{ url_for('main.appearance') }}" class="appearance-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <fieldset>
+        <legend class="visually-hidden">Colour scheme</legend>
+        <div class="segmented">
+          {% for key, label in themes.items() %}
+          <label><input type="radio" name="theme" value="{{ key }}" {% if (g.user.theme or "auto") == key %}checked{% endif %}><span>{{ label }}</span></label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <p class="hint">Auto follows each device's light or dark setting. Your choice is saved to your account, so it applies wherever you sign in.</p>
+      <button type="submit" class="button button-secondary">Save</button>
+    </form>
+  </section>
+  </div>
+</div>
+{% endblock %}

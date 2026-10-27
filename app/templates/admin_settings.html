@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="narrow">
+  {% if errors %}
+  <div class="problems" role="alert">
+    <p>Settings weren't saved:</p>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+  {% if not editable %}
+  <p class="notice locked-notice" role="status">Your group, {{ access.group_name }}, can see these settings but not change them. An admin can change them, or give your group permission.</p>
+  {% elif editable | length < groups | length %}
+  <p class="notice locked-notice" role="status">Greyed-out sections can't be changed by your group, {{ access.group_name }}. An admin can change them, or give your group permission.</p>
+  {% endif %}
+  <p class="muted settings-note">Light or dark mode is chosen by each person for their own account, under <a href="{{ url_for('main.account') }}#appearance-heading">Account &gt; Appearance</a>.</p>
+
+  <form method="post" action="{{ url_for('main.admin_settings') }}" class="settings-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for group in groups %}
+    {% set locked = group not in editable %}
+    <fieldset class="settings-group{% if locked %} is-locked{% endif %}" {% if locked %}disabled aria-describedby="locked-{{ loop.index }}"{% endif %}>
+      <legend>{{ group }}{% if locked %} <span class="lock-tag">Locked</span>{% endif %}</legend>
+      {% if locked %}<p class="locked-note" id="locked-{{ loop.index }}">You don't have permission to change these.</p>{% endif %}
+      {% for key, spec in specs.items() if spec.group == group %}
+        {% if spec.kind == "bool" %}
+        <div class="field">
+          <label class="check"><input type="checkbox" name="{{ key }}" {% if values[key] %}checked{% endif %}> {{ spec.label }}</label>
+          {% if spec.help %}<p class="hint">{{ spec.help }}</p>{% endif %}
+        </div>
+        {% else %}
+        <div class="field">
+          <label for="{{ key }}">{{ spec.label }}</label>
+          {% if spec.kind == "int" %}
+          <div class="inline-fields">
+            <input id="{{ key }}" name="{{ key }}" type="number" value="{{ values[key] }}" min="{{ spec.minimum }}" max="{{ spec.maximum }}" step="1" required>
+            {% if spec.unit %}<span class="unit">{{ spec.unit }}</span>{% endif %}
+          </div>
+          {% else %}
+          <input id="{{ key }}" name="{{ key }}" type="text" value="{{ values[key] }}" maxlength="{{ spec.maximum }}" required>
+          {% endif %}
+          {% if spec.help %}<p class="hint">{{ spec.help }}</p>{% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
+      {% if group == "Sign-in" %}
+      <p class="hint settings-2fa">Whether two-step verification is required is set for each group{% if can("groups") %}, under <a href="{{ url_for('main.admin_groups') }}">Admin &gt; Groups</a>{% else %} by an admin{% endif %}.</p>
+      {% endif %}
+    </fieldset>
+    {% endfor %}
+    {% if editable %}<div class="actions"><button type="submit" class="button button-primary">Save settings</button></div>{% endif %}
+  </form>
+
+  <section class="admin-note-block">
+    <h2>Set in config.toml instead</h2>
+    <p class="muted">Network and HTTPS settings, the database location, GPIO mode and which networks may open this Admin area live in <code>config.toml</code> on the Pi. A wrong value there could lock you out from a web page, so they're changed on the Pi itself and need a restart.</p>
+  </section>
+</div>
+{% endblock %}

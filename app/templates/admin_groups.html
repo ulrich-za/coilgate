@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %}Groups{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<section class="admin-section" aria-labelledby="groups-heading">
+  <div class="section-head">
+    <h2 id="groups-heading">Groups</h2>
+    <a class="button button-secondary" href="{{ url_for('main.admin_group_new') }}">Add a group</a>
+  </div>
+  <p class="muted section-lede">Every account is in one group, and the group decides what it can do and whether it needs two-step verification. Admin can always do everything. Only admins see this page.</p>
+
+  <ul class="group-list">
+  {% for gr in groups.values() %}
+    <li class="group-card">
+      <div class="group-card-head">
+        <div>
+          <h3>{{ gr.name }}{% if gr.builtin %} <span class="tag tag-off">Built in</span>{% endif %}</h3>
+          <p class="muted">{{ gr.members }} account{{ "s" if gr.members != 1 }} ·
+            {% if gr.require_2fa %}two-step verification required{% else %}<span class="no-2fa">two-step verification optional</span>{% endif %}</p>
+        </div>
+        <a href="{{ url_for('main.admin_group_edit', group_id=gr.id) }}">Edit</a>
+      </div>
+      <ul class="group-can">
+        {% for line in summaries[gr.id] %}<li>{{ line }}</li>{% endfor %}
+      </ul>
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+# HTTPS for CoilGate on your Windows PC, for testing. Only this PC can reach it.
+# Put caddy.exe and this file (renamed to Caddyfile) in the project folder and
+# run:  .\caddy.exe run
+# The first run asks Windows to trust Caddy's local certificate authority.
+
+{
+	default_bind 127.0.0.1 [::1]
+}
+
+localhost {
+	tls internal
+	header {
+		-Server
+	}
+	reverse_proxy 127.0.0.1:8000
+}

@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+{% from "_pin_map.html" import header, strip %}
+{% block title %}Controls{% endblock %}
+{% block body_class %}app-page{% if has_points %} has-dock{% endif %}{% endblock %}
+{# Messages go to the activity panel's status line instead of the top of the
+   page, so pressing a button never shifts the page. #}
+{% block flashes %}{% if not has_points %}{% include "_flashes.html" %}{% endif %}{% endblock %}
+{% block content %}
+<div class="intro">
+  <h1>Controls</h1>
+  <p class="lede">Outputs start switched off whenever {{ product_name }} starts or the Pi reboots{% if automated %}, unless a rule switches them on{% endif %}.</p>
+</div>
+
+{% if view_only and (outputs or inputs or sensors) %}
+  <p class="notice" role="status">Your group, {{ access.group_name }}, can see the controls but not switch them.</p>
+{% elif blocked %}
+  <p class="notice notice-warn" role="status">Your access follows the <strong>{{ blocked.name }}</strong> schedule, so you can see the controls but not use them right now.{% if next_start %} They're available again {{ next_start }}.{% endif %}</p>
+{% endif %}
+
+{% if simulated and (outputs or inputs or sensors) %}
+  <p class="notice" role="status">Simulation: this machine has no GPIO pins, so nothing physical switches and sensor readings are made up. On the Pi the same page drives the relays and reads the real inputs and sensors.</p>
+{% endif %}
+
+{% if has_points %}
+<div class="pinmap-mobile">
+  {{ strip(pin_rows, io) }}
+  <p class="pinmap-caption muted">The header seen from above, USB ports to the right; pin 1 is bottom left. <a href="{{ url_for('main.pinout_page') }}">Full pinout</a></p>
+</div>
+{% endif %}
+
+<div class="controls-layout">
+<div class="live" data-live-state="{{ url_for('main.controls_state') }}" data-version="{{ version }}" data-setup="{{ setup }}">
+{% if outputs %}
+<section aria-labelledby="outputs-heading">
+  <h2 id="outputs-heading" class="section-title">Outputs</h2>
+  <ul class="points">
+  {% for o in outputs %}
+    {% set on = io.is_on(o.id) %}
+    {% set pulsing = io.is_pulsing(o.id) %}
+    {% set err = io.errors.get(o.id) %}
+    <li class="point" id="io-{{ o.id }}" data-kind="output" data-on="{{ 'yes' if on else 'no' }}"{% if err %} data-error="yes"{% endif %}>
+      <span class="lamp point-lamp" aria-hidden="true"></span>
+      <div class="point-text">
+        <h3>{{ o.name }}</h3>
+        <p class="point-meta">
+          <span data-state-text>{{ io.state_text(o) }}</span>
+          <span class="point-pin">GPIO {{ o.pin }} · pin {{ physical[o.pin] }}</span>
+          {% if automated.get(o.id) %}<span class="point-pin auto-tag">Automated by {{ automated[o.id] }} rule{{ "s" if automated[o.id] != 1 }}</span>{% endif %}
+          {% if o.mode == "pulse" %}<span class="point-pin">{{ o.pulse_seconds | pulse }} pulse</span>{% endif %}
+        </p>
+      </div>
+      <form method="post" action="{{ url_for('main.control_action', point_id=o.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if o.mode == "pulse" %}
+          <button type="submit" name="do" data-pulse value="{{ 'stop' if pulsing else 'pulse' }}"
+                  class="button {{ 'button-secondary' if pulsing else 'button-primary' }}"
+                  {% if err or locked %}disabled{% endif %}>{{ "Stop" if pulsing else "Pulse" }}</button>
+        {% else %}
+          <button type="submit" name="do" data-toggle value="{{ 'off' if on else 'on' }}"
+                  class="button {{ 'button-secondary' if on else 'button-primary' }}"
+                  {% if err or locked %}disabled{% endif %}>{{ "Turn off" if on else "Turn on" }}</button>
+        {% endif %}
+      </form>
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if inputs %}
+<section aria-labelledby="inputs-heading">
+  <h2 id="inputs-heading" class="section-title">Inputs</h2>
+  <ul class="points">
+  {% for i in inputs %}
+    {% set err = io.errors.get(i.id) %}
+    <li class="point" id="io-{{ i.id }}" data-kind="input" data-on="{{ 'yes' if io.is_on(i.id) else 'no' }}"{% if err %} data-error="yes"{% endif %}>
+      <span class="lamp point-lamp" aria-hidden="true"></span>
+      <div class="point-text">
+        <h3>{{ i.name }}</h3>
+        <p class="point-meta">
+          <span data-state-text>{{ io.state_text(i) }}</span>
+          <span class="point-pin">GPIO {{ i.pin }} · pin {{ physical[i.pin] }}</span>
+        </p>
+      </div>
+      {% if simulated and not err and not locked %}
+      <form method="post" action="{{ url_for('main.simulate_input', point_id=i.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="button button-quiet">Simulate a change</button>
+      </form>
+      {% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% if sensors %}
+<section aria-labelledby="sensors-heading">
+  <h2 id="sensors-heading" class="section-title">Sensors</h2>
+  <ul class="points">
+  {% for p in sensors %}
+    {% set value = io.sensor_value(p.id) %}
+    <li class="point point-sensor" id="io-{{ p.id }}" data-kind="sensor" data-on="no"{% if value is none %} data-error="{{ 'yes' if io.readings.get(p.id) and io.readings[p.id].error else 'wait' }}"{% endif %}>
+      <span class="sensor-glyph" aria-hidden="true">{{ {"temperature": "°", "humidity": "%", "pressure": "hPa"}[p.quantity] }}</span>
+      <div class="point-text">
+        <h3>{{ p.name }}</h3>
+        <p class="point-meta">
+          <span class="reading" data-state-text>{{ io.state_text(p) }}</span>
+        </p>
+      </div>
+      {% if simulated and not locked %}
+      <form method="post" action="{{ url_for('main.simulate_reading', point_id=p.id) }}" class="sim-reading">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="visually-hidden" for="sim-{{ p.id }}">Simulated reading for {{ p.name }}</label>
+        <input id="sim-{{ p.id }}" name="value" type="number" step="any" inputmode="decimal" value="{{ '%g' % value if value is not none else '' }}" class="num-field">
+        <button type="submit" class="button button-quiet">Set</button>
+      </form>
+      {% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+{% endif %}
+</div>
+{% if has_points %}
+<aside class="pinmap-aside" aria-labelledby="pinmap-heading">
+  <div class="section-head">
+    <h2 id="pinmap-heading" class="section-title">Pins</h2>
+    <a href="{{ url_for('main.pinout_page') }}">Full pinout</a>
+  </div>
+  {{ header(pin_rows, io, compact=true) }}
+</aside>
+{% endif %}
+</div>
+
+{% if not outputs and not inputs and not sensors %}
+<div class="empty">
+  <h2>Nothing to control yet</h2>
+  {% if can("io") and show_admin %}
+    <p>Add the relays and sensors wired to this Pi, and they'll appear here.</p>
+    <p class="actions"><a class="button button-primary" href="{{ url_for('main.admin_io_new', kind='output') }}">Add an output</a>
+    <a class="button button-secondary" href="{{ url_for('main.admin_io_new', kind='input') }}">Add an input</a></p>
+  {% else %}
+    <p>An admin needs to add the inputs and outputs wired to this Pi.</p>
+  {% endif %}
+</div>
+{% else %}
+{% set messages = get_flashed_messages(with_categories=true) %}
+{% set last = messages[-1] if messages else none %}
+<aside class="dock" id="activity-dock" aria-labelledby="dock-title"
+       data-last-id="{{ log[0].id if log else 0 }}">
+  <div class="dock-head">
+    <h2 id="dock-title" class="dock-title">Activity</h2>
+    <p class="dock-status" role="status" data-status data-level="{{ last[0] if last else 'idle' }}">{{ last[1] if last else "Changes you make show here." }}</p>
+    {% if can("activity") and show_admin %}<a class="dock-link" href="{{ url_for('main.admin_activity') }}">Full log</a>{% endif %}
+    <button type="button" class="link-button dock-toggle" data-dock-toggle aria-expanded="true" aria-controls="dock-body" hidden>Hide</button>
+  </div>
+  <div class="dock-body" id="dock-body" tabindex="0" role="region" aria-label="Recent activity">
+    <table class="log"{% if not log %} hidden{% endif %}>
+      <thead><tr><th scope="col" class="c-when">When</th><th scope="col" class="c-what">What</th><th scope="col" class="c-change">Change</th><th scope="col" class="c-by">By</th><th scope="col" class="c-ip">IP address</th></tr></thead>
+      <tbody>
+      {% for e in log %}
+        <tr>
+          <td class="c-when">{{ e.when }}</td>
+          <td class="c-what">{{ e.what }}<span class="m-only"> · {{ e.change }}</span></td>
+          <td class="c-change">{{ e.change }}</td>
+          <td class="c-by">{{ e.by }}{% if e.ip %}<span class="m-only"> · {{ e.ip }}</span>{% endif %}</td>
+          <td class="c-ip">{{ e.ip }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p class="dock-empty muted" data-log-empty{% if log %} hidden{% endif %}>Every switch and every input change is recorded here.</p>
+  </div>
+</aside>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='live.js') }}" defer></script>{% endblock %}

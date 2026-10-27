@@ -1,0 +1,88 @@
+{# Fields for a sensor reading. Included from admin_io_form.html. #}
+<p class="sensor-type-line"><span class="muted">Sensor:</span> {{ sensor.label }}</p>
+
+<div class="setup-note">
+  {% if v.sensor_type == "ds18b20" %}
+    <p><strong>One-time Pi setup:</strong> enable 1-Wire (<code>sudo raspi-config nonint do_onewire 0</code>, or add <code>dtoverlay=w1-gpio</code> to <code>/boot/firmware/config.txt</code>) and reboot. Probes then appear below. The data line needs a 4.7 kΩ resistor to 3.3 V.</p>
+  {% elif v.sensor_type == "bme280" %}
+    <p><strong>One-time Pi setup:</strong> enable I²C (<code>sudo raspi-config nonint do_i2c 0</code>) and reboot. The board connects to GPIO 2 (SDA) and GPIO 3 (SCL), so don't use those pins for anything else.</p>
+  {% else %}
+    <p><strong>One-time Pi setup:</strong> add <code>dtoverlay=dht11,gpiopin=17</code> to <code>/boot/firmware/config.txt</code> (with your pin number; this driver also reads DHT22 and AM2302) and reboot. The sensor then appears below.</p>
+  {% endif %}
+</div>
+
+{% if sensor.quantities | length > 1 %}
+<fieldset class="field">
+  <legend>Measures</legend>
+  {% for q in sensor.quantities %}
+  <label class="choice"><input type="radio" name="quantity" value="{{ q }}" {% if v.quantity == q %}checked{% endif %}>
+    <span><strong>{{ quantities[q].label }}</strong> <span class="hint">in {{ quantities[q].unit }}</span></span></label>
+  {% endfor %}
+  <p class="hint">For several readings from one sensor, add it once for each, such as "Living Room Temperature" and "Living Room Humidity".</p>
+</fieldset>
+{% else %}
+<input type="hidden" name="quantity" value="{{ sensor.quantities[0] }}">
+{% endif %}
+
+{% if v.sensor_type == "ds18b20" %}
+<div class="field">
+  <label for="address">Probe</label>
+  <input id="address" name="address" type="text" list="probe-list" value="{{ v.address or '' }}"
+         placeholder="28-..." autocapitalize="none" spellcheck="false" required aria-describedby="probe-hint">
+  <datalist id="probe-list">{% for d in discovered %}<option value="{{ d.value }}">{% endfor %}</datalist>
+  {% if discovered %}
+    <div class="found" id="probe-hint">
+      <p class="hint">Probes the Pi can see{% if simulated %} (simulated){% endif %}. Warm one in your hand to tell them apart.</p>
+      <ul>{% for d in discovered %}<li><code>{{ d.value }}</code> <span class="muted">{{ d.reading }}</span></li>{% endfor %}</ul>
+    </div>
+  {% else %}
+    <p class="hint" id="probe-hint">No probes found yet. Check the setup above, or type the probe's ID.</p>
+  {% endif %}
+</div>
+{% elif v.sensor_type == "bme280" %}
+<fieldset class="field">
+  <legend>I²C address</legend>
+  {% for addr, help in (("0x76", "Most boards, or with the SDO pin to ground"), ("0x77", "Some boards, or with the SDO pin to 3.3 V")) %}
+  <label class="choice"><input type="radio" name="address" value="{{ addr }}" {% if (v.address or '0x76') == addr %}checked{% endif %}>
+    <span><strong>{{ addr }}</strong><br><span class="hint">{{ help }}</span></span></label>
+  {% endfor %}
+  <p class="hint">Not sure? <code>sudo apt install i2c-tools</code>, then <code>i2cdetect -y 1</code> shows 76 or 77.</p>
+</fieldset>
+{% else %}
+<div class="field">
+  <label for="address">DHT device</label>
+  <input id="address" name="address" type="text" list="dht-list" value="{{ v.address or '' }}"
+         placeholder="iio:device0" autocapitalize="none" spellcheck="false" required aria-describedby="dht-hint">
+  <datalist id="dht-list">{% for d in discovered %}<option value="{{ d.value }}">{% endfor %}</datalist>
+  <p class="hint" id="dht-hint">{% if discovered %}Found: {% for d in discovered %}<code>{{ d.label }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% if simulated %} (simulated){% endif %}.{% else %}None found yet. Check the setup above.{% endif %}</p>
+</div>
+<div class="field">
+  <label for="pin">GPIO pin it's on</label>
+  <select id="pin" name="pin" required aria-describedby="dht-pin-hint">
+    <option value="" {% if not v.pin %}selected{% endif %} disabled>Choose a pin</option>
+    {% for o in pins %}
+      <option value="{{ o.pin }}" {% if o.pin == v.pin %}selected{% endif %} {% if o.taken_by %}disabled{% endif %}>
+        GPIO {{ o.pin }}, header pin {{ o.physical }}{% if o.taken_by %} (used by {{ o.taken_by }}){% endif %}
+      </option>
+    {% endfor %}
+  </select>
+  <p class="hint" id="dht-pin-hint">The same pin as <code>gpiopin=</code> in config.txt. It's reserved here so nothing else uses it.</p>
+</div>
+{% endif %}
+
+<div class="field">
+  <label for="poll_seconds">Read it every</label>
+  <div class="inline-fields">
+    <input id="poll_seconds" name="poll_seconds" type="number" min="{{ sensor.min_poll }}" max="3600" step="1" value="{{ v.poll_seconds }}">
+    <span class="unit">seconds</span>
+  </div>
+</div>
+
+<div class="field">
+  <label for="calibration">Correction</label>
+  <div class="inline-fields">
+    <input id="calibration" name="calibration" type="number" step="0.1" value="{{ '%g' % (v.calibration or 0) }}" aria-describedby="cal-hint">
+    {% if v.quantity %}<span class="unit">{{ quantities[v.quantity].unit }}</span>{% endif %}
+  </div>
+  <p class="hint" id="cal-hint">Added to every reading. If it reads 0.5 higher than a {{ {"humidity": "hygrometer", "pressure": "barometer"}.get(v.quantity, "thermometer") }} you trust, enter -0.5.</p>
+</div>

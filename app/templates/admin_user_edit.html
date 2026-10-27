@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+{% block title %}{{ user.username }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="narrow">
+  <p class="back"><a href="{{ url_for('main.admin_users') }}">Back to accounts</a></p>
+  <h2 class="form-title">{{ user.username }}{% if is_self %} <span class="muted">(you)</span>{% endif %}</h2>
+  <p class="lede">
+    In the {{ group.name if group else "no" }} group{% if not user.is_active %}, disabled{% endif %}.
+    Two-step verification is {{ "on" if user.totp_enabled else "off" }}{% if group and group.require_2fa and not user.totp_enabled %}; their group needs it, so they'll set it up at their next sign-in{% endif %}.
+    {% if user.must_change_password %}Hasn't chosen their own password yet.{% else %}Last signed in {{ user.last_login_at | when }}{% if user.last_login_ip %} from {{ user.last_login_ip }}{% endif %}.{% endif %}
+  </p>
+
+  {% if error %}<p class="problems" role="alert">{{ error }}</p>{% endif %}
+
+  <section class="manage-block" aria-labelledby="group-heading">
+    <h3 id="group-heading">Group</h3>
+    {% if group %}<p class="hint">{{ summaries[group.id] }}</p>{% endif %}
+    {% if is_self %}
+      <p class="muted">You can't change your own group. {{ "Another admin" if is_admin else "An admin" }} can.</p>
+    {% else %}
+    <form method="post" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="do" value="group">
+      <select name="group_id" aria-label="Group">
+        {% for gr in group_choices %}
+        <option value="{{ gr.id }}" {% if group and gr.id == group.id %}selected{% endif %}>{{ gr.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="button button-secondary">Change group</button>
+    </form>
+    {% if not is_admin %}<p class="hint">You can move accounts between the groups you manage.</p>{% endif %}
+    {% endif %}
+  </section>
+
+  <section class="manage-block" aria-labelledby="schedule-heading">
+    <h3 id="schedule-heading">When they can use the controls</h3>
+    {% if group and group.is_admin %}
+      <p class="muted">Admins can use the controls at any time. Schedules apply to other groups.</p>
+    {% else %}
+    <form method="post" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="do" value="schedule">
+      <select name="schedule_id" aria-label="Access schedule">
+        {% for s in schedules %}
+          <option value="{{ s.id }}" {% if (not user.schedule_id and s.builtin) or s.id == user.schedule_id %}selected{% endif %}>{{ s.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="button button-secondary">Save</button>
+    </form>
+    <p class="hint">Outside these times they can sign in and see the controls, but not switch anything. Rules keep running regardless.</p>
+    {% endif %}
+  </section>
+
+  <section class="manage-block" aria-labelledby="access-heading">
+    <h3 id="access-heading">Access</h3>
+    <div class="button-row">
+      {% if not is_self %}
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" name="do" value="reset_password" class="button button-secondary">Issue a temporary password</button>
+      </form>
+      {% endif %}
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" name="do" value="reset_2fa" class="button button-secondary" {% if not user.totp_enabled %}disabled{% endif %}>Reset two-step verification</button>
+      </form>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" name="do" value="sign_out" class="button button-secondary">Sign out {{ "my other sessions" if is_self else "everywhere" }}</button>
+      </form>
+      {% if not is_self %}
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if user.is_active %}
+          <button type="submit" name="do" value="disable" class="button button-secondary">Disable account</button>
+        {% else %}
+          <button type="submit" name="do" value="enable" class="button button-secondary">Enable account</button>
+        {% endif %}
+      </form>
+      {% endif %}
+    </div>
+    <p class="hint">A temporary password replaces theirs and signs them out. Resetting two-step verification is for a lost phone; they set it up again at their next sign-in.</p>
+  </section>
+
+  {% if not is_self %}
+  <section class="danger-zone" aria-labelledby="delete-heading">
+    <h3 id="delete-heading">Delete account</h3>
+    <p class="muted">Removes the account. Its history stays in the activity log under the old username.</p>
+    <form method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field">
+        <label for="confirm">Type {{ user.username }} to confirm</label>
+        <input id="confirm" name="confirm" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+      </div>
+      <div class="actions"><button type="submit" name="do" value="delete" class="button button-danger">Delete {{ user.username }}</button></div>
+    </form>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

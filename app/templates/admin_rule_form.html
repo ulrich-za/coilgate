@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+{% block title %}{{ ("Edit rule") if rule_id else "Add a rule" }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<div class="narrow wide-narrow">
+  <p class="back"><a href="{{ url_for('main.admin_rules') if rule_id else url_for('main.admin_rule_pick') }}">{{ "Back to rules" if rule_id else "Choose a different start" }}</a></p>
+  <div class="form-title-row">
+    <h2 class="form-title">{{ "Edit rule" if rule_id else "Add a rule" }}</h2>
+    {% include "_builder_switch.html" %}
+  </div>
+  <p class="lede">{{ trigger[1] }}</p>
+
+  {% if errors %}
+  <div class="problems" role="alert">
+    <p>Not saved yet:</p>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <form method="post" class="stack" action="{{ url_for('main.admin_rule_edit', rule_id=rule_id) if rule_id else url_for('main.admin_rule_new', trigger_type=trigger_type) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="rule-builder">
+      {# ---- the condition ---- #}
+      <div class="rule-line">
+        {% if trigger_type == "input" %}
+          <label class="rule-word" for="source">When</label>
+          <select id="source" name="source" required>
+            <option value="" disabled {% if not source_value %}selected{% endif %}>choose an input and state</option>
+            {% for value, label in c.input_options %}
+              <option value="{{ value }}" {% if value == source_value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        {% elif trigger_type == "sensor" %}
+          <label class="rule-word" for="source">When</label>
+          <select id="source" name="source" required>
+            <option value="" disabled {% if not source_value %}selected{% endif %}>choose a reading</option>
+            {% for p in c.sensors %}
+              <option value="{{ p.id }}" {% if p.id | string == source_value %}selected{% endif %}>{{ p.name }} ({{ quantities[p.quantity].unit }})</option>
+            {% endfor %}
+          </select>
+          <label class="rule-word" for="comparator">is</label>
+          <select id="comparator" name="comparator">
+            <option value="above" {% if v.comparator != "below" %}selected{% endif %}>above</option>
+            <option value="below" {% if v.comparator == "below" %}selected{% endif %}>below</option>
+          </select>
+          <label class="visually-hidden" for="threshold">Value</label>
+          <input id="threshold" name="threshold" type="number" step="any" inputmode="decimal" value="{{ threshold }}" required class="num-field" placeholder="26">
+        {% elif trigger_type == "schedule" %}
+          <label class="rule-word" for="trigger_schedule">While</label>
+          <select id="trigger_schedule" name="trigger_schedule" required>
+            <option value="" disabled {% if not v.trigger_schedule_id %}selected{% endif %}>choose a schedule</option>
+            {% for s in c.trigger_schedules %}
+              <option value="{{ s.id }}" {% if s.id == v.trigger_schedule_id %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+          </select>
+          <span class="rule-word">is active</span>
+        {% endif %}
+        {% if trigger_type == "rule" %}
+          <label class="rule-word" for="source">When rule</label>
+          <select id="source" name="source" required aria-describedby="rule-trigger-hint">
+            <option value="" disabled {% if not source_value %}selected{% endif %}>choose a rule</option>
+            {% for value, label in c.rule_options %}
+              <option value="{{ value }}" {% if value == source_value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        {% endif %}
+      </div>
+
+      {% if trigger_type == "rule" %}
+      <p class="hint rule-hint" id="rule-trigger-hint">A rule is active while its condition is met: after its waiting time, and within its schedule.</p>
+      {% endif %}
+      {% if trigger_type != "schedule" %}
+      <div class="rule-line rule-sub">
+        <label class="rule-word" for="hold_value">for at least</label>
+        <input id="hold_value" name="hold_value" type="number" min="0" step="1" value="{{ hold_value }}" class="num-field" aria-describedby="hold-hint">
+        <select name="hold_unit" aria-label="Unit for the waiting time">
+          <option value="s" {% if hold_unit == "s" %}selected{% endif %}>seconds</option>
+          <option value="min" {% if hold_unit == "min" %}selected{% endif %}>minutes</option>
+        </select>
+      </div>
+      <p class="hint rule-hint" id="hold-hint">0 acts straight away. More than that waits, such as only when a door has been open for 2 minutes.</p>
+      {% endif %}
+
+      <div class="rule-line rule-sub">
+        <label class="rule-word" for="schedule_id">during</label>
+        <select id="schedule_id" name="schedule_id">
+          {% for s in c.schedules %}
+            <option value="{{ s.id }}" {% if s.id == v.schedule_id %}selected{% endif %}>{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {# ---- the action ---- #}
+      <div class="rule-line rule-then">
+        <label class="rule-word" for="target">then</label>
+        <select id="target" name="target" required>
+          <option value="" disabled {% if not target_value %}selected{% endif %}>choose what to do</option>
+          <optgroup label="Outputs">
+          {% for value, label in c.action_options %}
+            <option value="{{ value }}" {% if value == target_value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+          </optgroup>
+          {% if c.rule_action_options %}
+          <optgroup label="Other rules">
+          {% for value, label in c.rule_action_options %}
+            <option value="{{ value }}" {% if value == target_value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+          </optgroup>
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="rule-line rule-sub rule-undo">
+        <label class="check"><input type="checkbox" name="undo" {% if v.undo %}checked{% endif %}>
+          {% if trigger_type == "schedule" %}and undo it when the schedule ends
+          {% elif trigger_type == "sensor" %}and undo it when the reading gets back to
+          {% else %}and undo it when that's no longer the case{% endif %}
+        </label>
+        {% if trigger_type == "sensor" %}
+          <label class="visually-hidden" for="reset_threshold">Value to undo at</label>
+          <input id="reset_threshold" name="reset_threshold" type="number" step="any" inputmode="decimal" value="{{ reset_threshold }}" class="num-field" placeholder="auto" aria-describedby="reset-hint">
+        {% endif %}
+      </div>
+      <p class="hint rule-hint" {% if trigger_type == "sensor" %}id="reset-hint"{% endif %}>
+        "Undo" turns an output off again (or on again), or switches a rule back. Toggles and pulses can't be undone.
+        {% if trigger_type == "sensor" %}Leave the value empty for 1 below the trigger value (or 1 above, for "below"). A gap like this stops it flicking on and off around one value.{% endif %}
+      </p>
+    </div>
+
+    <div class="field">
+      <label for="name">Name <span class="muted">(optional)</span></label>
+      <input id="name" name="name" type="text" value="{{ v.name or '' }}" maxlength="80" placeholder="Made from the rule if you leave it empty">
+    </div>
+
+    <label class="check"><input type="checkbox" name="enabled" {% if v.enabled %}checked{% endif %}> Rule is switched on</label>
+
+    <div class="actions">
+      <button type="submit" class="button button-primary">{{ "Save rule" if rule_id else "Add rule" }}</button>
+      <a href="{{ url_for('main.admin_rules') }}" class="button button-secondary">Cancel</a>
+    </div>
+  </form>
+
+  {% if rule_id %}
+  <section class="danger-zone" aria-labelledby="remove-heading">
+    <h2 id="remove-heading">Remove this rule</h2>
+    {% if used_by %}
+    <p class="muted">Other rules use this one, so it can't be removed yet: {{ used_by | join(", ") }}.</p>
+    {% else %}
+    <p class="muted">Outputs stay as they are. Its history stays in the activity log.</p>
+    <form method="post" action="{{ url_for('main.admin_rule_delete', rule_id=rule_id) }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="check"><input type="checkbox" name="confirm" value="yes" required> Yes, remove this rule</label>
+      <div class="actions"><button type="submit" class="button button-danger">Remove</button></div>
+    </form>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body_class %}gate-page{% endblock %}
+{% block body %}
+<main class="gate">
+  <section class="panel" data-state="{{ state }}" aria-labelledby="heading">
+    <span class="lamp" aria-hidden="true"></span>
+    <p class="brand">{{ app_name }}</p>
+    <h1 id="heading">Sign in</h1>
+
+    {% if state == "denied" %}
+      <p class="status" role="alert">Incorrect username or password.</p>
+    {% elif state == "expired" %}
+      <p class="status" role="alert">That temporary password has expired. Ask an admin for a new one.</p>
+    {% elif state == "locked" %}
+      <p class="status" role="alert">Too many failed attempts. Wait {{ cfg.failure_window_minutes }} minutes, then try again.</p>
+    {% else %}
+      <p class="status">Enter your username and password.</p>
+    {% endif %}
+
+    {% include "_flashes.html" %}
+
+    <form method="post" action="{{ url_for('main.login') }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" value="{{ username }}"
+               autocomplete="username" autocapitalize="none" autocorrect="off"
+               spellcheck="false" required maxlength="64" {% if not username %}autofocus{% endif %}>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password"
+               autocomplete="current-password" required {% if username %}autofocus{% endif %}>
+      </div>
+
+      <button type="submit" class="button button-primary button-wide">Sign in</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

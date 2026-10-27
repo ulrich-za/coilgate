@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% from "_schedule_chart.html" import chart %}
+{% block title %}Schedules{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+
+<section class="admin-section" aria-labelledby="sched-heading">
+  <div class="section-head">
+    <h2 id="sched-heading">Schedules</h2>
+    <a class="button button-secondary" href="{{ url_for('main.admin_schedule_new') }}">Add a schedule</a>
+  </div>
+  <p class="muted section-lede">Schedules are sets of weekly times. A rule can run only during a schedule, a schedule can start a rule, and a user account can be limited to one.</p>
+
+  <ul class="schedule-list">
+  {% for item in items %}
+    {% set s = item.schedule %}
+    <li class="schedule-card">
+      <div class="schedule-card-head">
+        <div>
+          <h3>{{ s.name }}</h3>
+          <p class="muted">{{ s.summary() }}</p>
+        </div>
+        <div class="schedule-card-side">
+          <span class="result {{ 'ok' if s.is_active() else 'off' }}">{{ "Active now" if s.is_active() else "Not active now" }}</span>
+          {% if s.builtin %}
+            <span class="muted">Built in</span>
+          {% else %}
+            <a href="{{ url_for('main.admin_schedule_edit', schedule_id=s.id) }}">Edit</a>
+          {% endif %}
+        </div>
+      </div>
+      {{ chart(s, days) }}
+      {% set uses = item.usage.rules | length + item.usage.users | length %}
+      {% if uses %}
+      <p class="muted usage">Used by
+        {% if item.usage.rules %}{{ item.usage.rules | length }} rule{{ "s" if item.usage.rules | length != 1 }}{% endif %}{% if item.usage.rules and item.usage.users %} and {% endif %}{% if item.usage.users %}{{ item.usage.users | length }} account{{ "s" if item.usage.users | length != 1 }}{% endif %}.
+      </p>
+      {% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+  <p class="muted admin-note">Times are the Pi's local time ({{ now_text }}).</p>
+</section>
+{% endblock %}
